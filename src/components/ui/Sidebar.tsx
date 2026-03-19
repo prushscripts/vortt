@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 
 const navItems = [
   { href: "/dashboard",  label: "Dashboard",  emoji: "⚡" },
+  { href: "/phases",     label: "Phases",     emoji: "🧭" },
   { href: "/dispatch",   label: "Dispatch",   emoji: "🗺️" },
   { href: "/jobs",       label: "Jobs",       emoji: "🔧" },
   { href: "/customers",  label: "Customers",  emoji: "👥" },

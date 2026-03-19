@@ -5,6 +5,7 @@ import { Sidebar, BottomNav } from "@/components/ui/Sidebar";
 
 const pageTitles: Record<string, string> = {
   "/dashboard":  "Dashboard",
+  "/phases":     "Phases",
   "/dispatch":   "Dispatch",
   "/jobs":       "Jobs",
   "/customers":  "Customers",
