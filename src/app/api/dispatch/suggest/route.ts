@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { openai } from "@/lib/openai/client";
+import { getOpenAI } from "@/lib/openai/client";
 
 export async function POST(req: NextRequest) {
   const { jobs, techs } = await req.json();
@@ -25,7 +25,7 @@ ${JSON.stringify(techs, null, 2)}
 Return JSON only with this exact structure:
 { "assignments": [{ "jobId": "string", "techId": "string", "reasoning": "string", "estimatedDriveMinutes": number }] }`;
 
-  const completion = await openai.chat.completions.create({
+  const completion = await getOpenAI().chat.completions.create({
     model: "gpt-4o",
     messages: [
       {

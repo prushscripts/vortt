@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { openai } from "@/lib/openai/client";
+import { getOpenAI } from "@/lib/openai/client";
 import { sendSMS } from "@/lib/twilio/client";
 import { z } from "zod";
 
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
     year: "numeric",
   });
 
-  const completion = await openai.chat.completions.create({
+  const completion = await getOpenAI().chat.completions.create({
     model: "gpt-4o",
     messages: [
       {
