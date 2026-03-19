@@ -10,40 +10,40 @@ interface BadgeProps {
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  emergency: "bg-red-100 text-vortt-red border-red-200",
-  high: "bg-orange-100 text-vortt-orange border-orange-200",
-  normal: "bg-zinc-100 text-zinc-600 border-zinc-200",
-  completed: "bg-green-100 text-vortt-green border-green-200",
-  cancelled: "bg-zinc-100 text-zinc-400 border-zinc-200",
-  scheduled: "bg-blue-100 text-blue-600 border-blue-200",
-  en_route: "bg-orange-100 text-vortt-orange border-orange-200",
-  in_progress: "bg-yellow-100 text-yellow-700 border-yellow-200",
-  active: "bg-green-100 text-vortt-green border-green-200",
-  expiring: "bg-amber-100 text-vortt-amber border-amber-200",
-  expired: "bg-red-100 text-vortt-red border-red-200",
-  renewed: "bg-blue-100 text-blue-600 border-blue-200",
+  emergency:   "bg-[rgba(244,63,94,0.15)]   text-[#F43F5E]  border-[rgba(244,63,94,0.25)]",
+  high:        "bg-[rgba(255,107,43,0.15)]  text-[#FF6B2B]  border-[rgba(255,107,43,0.25)]",
+  normal:      "bg-white/[0.06]             text-[rgba(248,248,250,0.5)] border-white/[0.08]",
+  completed:   "bg-[rgba(34,197,94,0.12)]   text-[#22C55E]  border-[rgba(34,197,94,0.2)]",
+  cancelled:   "bg-white/[0.04]             text-[rgba(248,248,250,0.3)] border-white/[0.06]",
+  scheduled:   "bg-[rgba(59,130,246,0.12)]  text-[#3B82F6]  border-[rgba(59,130,246,0.2)]",
+  en_route:    "bg-[rgba(255,107,43,0.12)]  text-[#FF6B2B]  border-[rgba(255,107,43,0.2)]",
+  in_progress: "bg-[rgba(245,158,11,0.12)]  text-[#F59E0B]  border-[rgba(245,158,11,0.2)]",
+  active:      "bg-[rgba(34,197,94,0.12)]   text-[#22C55E]  border-[rgba(34,197,94,0.2)]",
+  expiring:    "bg-[rgba(245,158,11,0.12)]  text-[#F59E0B]  border-[rgba(245,158,11,0.2)]",
+  expired:     "bg-[rgba(244,63,94,0.12)]   text-[#F43F5E]  border-[rgba(244,63,94,0.2)]",
+  renewed:     "bg-[rgba(59,130,246,0.12)]  text-[#3B82F6]  border-[rgba(59,130,246,0.2)]",
 };
 
 const variantLabels: Record<BadgeVariant, string> = {
-  emergency: "Emergency",
-  high: "High",
-  normal: "Normal",
-  completed: "Completed",
-  cancelled: "Cancelled",
-  scheduled: "Scheduled",
-  en_route: "En Route",
+  emergency:   "Emergency",
+  high:        "High",
+  normal:      "Normal",
+  completed:   "Completed",
+  cancelled:   "Cancelled",
+  scheduled:   "Scheduled",
+  en_route:    "En Route",
   in_progress: "In Progress",
-  active: "Active",
-  expiring: "Expiring",
-  expired: "Expired",
-  renewed: "Renewed",
+  active:      "Active",
+  expiring:    "Expiring",
+  expired:     "Expired",
+  renewed:     "Renewed",
 };
 
 export function Badge({ variant, className, children }: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border",
+        "inline-flex items-center px-2 py-0.5 rounded-pill text-[11px] font-mono-label font-medium border",
         variantStyles[variant],
         className
       )}

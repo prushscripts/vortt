@@ -1,32 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import {
-  Zap,
-  LayoutDashboard,
-  Map,
-  Briefcase,
-  Users,
-  FileText,
-  Package,
-  Receipt,
-  Settings,
-  LogOut,
-} from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Zap, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
 
 const navItems = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/dispatch", icon: Map, label: "Dispatch" },
-  { href: "/jobs", icon: Briefcase, label: "Jobs" },
-  { href: "/customers", icon: Users, label: "Customers" },
-  { href: "/contracts", icon: FileText, label: "Contracts" },
-  { href: "/inventory", icon: Package, label: "Inventory" },
-  { href: "/invoices", icon: Receipt, label: "Invoices" },
-  { href: "/settings", icon: Settings, label: "Settings" },
+  { href: "/dashboard",  label: "Dashboard",  emoji: "⚡" },
+  { href: "/dispatch",   label: "Dispatch",   emoji: "🗺️" },
+  { href: "/jobs",       label: "Jobs",       emoji: "🔧" },
+  { href: "/customers",  label: "Customers",  emoji: "👥" },
+  { href: "/contracts",  label: "Contracts",  emoji: "📋" },
+  { href: "/inventory",  label: "Inventory",  emoji: "📦" },
+  { href: "/invoices",   label: "Invoices",   emoji: "💰" },
+  { href: "/techs",      label: "Techs",      emoji: "🧑‍🔧" },
 ];
 
 export function Sidebar() {
@@ -41,80 +29,130 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-vortt-charcoal h-screen fixed left-0 top-0 z-30">
+    <aside
+      className="hidden md:flex flex-col w-[220px] h-screen fixed left-0 top-0 z-30"
+      style={{
+        background: "#0D0D10",
+        borderRight: "1px solid rgba(255,255,255,0.07)",
+      }}
+    >
       {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-zinc-800">
-        <div className="w-9 h-9 rounded-xl bg-vortt-orange flex items-center justify-center flex-shrink-0">
-          <Zap className="w-5 h-5 text-white" fill="white" />
+      <div className="flex items-center gap-2.5 px-5 py-5" style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+        <div
+          className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+          style={{ background: "#FF6B2B" }}
+        >
+          <Zap className="w-4 h-4 text-white" fill="white" />
         </div>
-        <span className="font-heading font-bold text-white text-xl tracking-tight">VORTT</span>
+        <span
+          className="font-heading font-bold text-lg tracking-tight"
+          style={{ color: "#F8F8FA" }}
+        >
+          VORTT
+        </span>
       </div>
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {navItems.map(({ href, icon: Icon, label }) => {
-          const active = pathname === href || pathname.startsWith(href + "/");
+        {navItems.map(({ href, label, emoji }) => {
+          const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
           return (
             <Link
               key={href}
               href={href}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150",
-                "text-sm font-medium min-h-[44px]",
+                "flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150 min-h-[40px] group",
                 active
-                  ? "bg-vortt-orange text-white"
-                  : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                  ? "nav-active"
+                  : "hover:bg-white/[0.04]"
               )}
             >
-              <Icon className="w-5 h-5 flex-shrink-0" />
-              {label}
+              <span className="text-base leading-none w-5 flex-shrink-0 text-center">
+                {emoji}
+              </span>
+              <span
+                className={cn(
+                  "text-sm font-medium transition-colors",
+                  active
+                    ? "text-[#F8F8FA]"
+                    : "text-[rgba(248,248,250,0.5)] group-hover:text-[rgba(248,248,250,0.8)]"
+                )}
+              >
+                {label}
+              </span>
+              {active && (
+                <div
+                  className="ml-auto w-1 h-1 rounded-full flex-shrink-0"
+                  style={{ background: "#FF6B2B" }}
+                />
+              )}
             </Link>
           );
         })}
       </nav>
 
-      {/* Sign out */}
-      <div className="p-3 border-t border-zinc-800">
+      {/* Bottom */}
+      <div className="px-3 pb-4 space-y-0.5" style={{ borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: "12px" }}>
+        <Link
+          href="/settings"
+          className="flex items-center gap-3 px-3 py-2 rounded-[10px] hover:bg-white/[0.04] transition-all min-h-[40px] group"
+        >
+          <Settings className="w-4 h-4 flex-shrink-0 text-[rgba(248,248,250,0.38)] group-hover:text-[rgba(248,248,250,0.65)]" />
+          <span className="text-sm font-medium text-[rgba(248,248,250,0.5)] group-hover:text-[rgba(248,248,250,0.8)]">
+            Settings
+          </span>
+        </Link>
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:bg-zinc-800 hover:text-white transition-all min-h-[44px]"
+          className="flex items-center gap-3 w-full px-3 py-2 rounded-[10px] hover:bg-white/[0.04] transition-all min-h-[40px] group"
         >
-          <LogOut className="w-5 h-5" />
-          Sign Out
+          <LogOut className="w-4 h-4 flex-shrink-0 text-[rgba(248,248,250,0.38)] group-hover:text-[rgba(248,248,250,0.65)]" />
+          <span className="text-sm font-medium text-[rgba(248,248,250,0.5)] group-hover:text-[rgba(248,248,250,0.8)]">
+            Sign Out
+          </span>
         </button>
       </div>
     </aside>
   );
 }
 
-// Mobile bottom nav — 4 key items
+/* Mobile bottom nav */
 const mobileNavItems = [
-  { href: "/dispatch", icon: Map, label: "Dispatch" },
-  { href: "/jobs", icon: Briefcase, label: "Jobs" },
-  { href: "/customers", icon: Users, label: "Customers" },
-  { href: "/dashboard", icon: LayoutDashboard, label: "More" },
+  { href: "/dispatch",  label: "Dispatch",  emoji: "🗺️" },
+  { href: "/jobs",      label: "Jobs",      emoji: "🔧" },
+  { href: "/customers", label: "Customers", emoji: "👥" },
+  { href: "/dashboard", label: "More",      emoji: "⚡" },
 ];
 
 export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-zinc-100 safe-area-bottom">
+    <nav
+      className="md:hidden fixed bottom-0 left-0 right-0 z-30 pb-safe"
+      style={{
+        background: "#0D0D10",
+        borderTop: "1px solid rgba(255,255,255,0.07)",
+      }}
+    >
       <div className="flex items-stretch">
-        {mobileNavItems.map(({ href, icon: Icon, label }) => {
-          const active = pathname === href || pathname.startsWith(href + "/");
+        {mobileNavItems.map(({ href, label, emoji }) => {
+          const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
           return (
             <Link
               key={href}
               href={href}
-              className={cn(
-                "flex-1 flex flex-col items-center justify-center py-3 gap-1 min-h-[60px]",
-                "text-xs font-medium transition-colors",
-                active ? "text-vortt-orange" : "text-zinc-400"
-              )}
+              className="flex-1 flex flex-col items-center justify-center py-3 gap-1 min-h-[60px] transition-colors"
             >
-              <Icon className={cn("w-6 h-6", active && "text-vortt-orange")} />
-              <span>{label}</span>
+              <span className="text-xl leading-none">{emoji}</span>
+              <span
+                className={cn(
+                  "text-[10px] font-medium font-mono-label transition-colors",
+                  active ? "text-[#FF6B2B]" : "text-[rgba(248,248,250,0.38)]"
+                )}
+              >
+                {label}
+              </span>
             </Link>
           );
         })}

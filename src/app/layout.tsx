@@ -1,21 +1,27 @@
 import type { Metadata, Viewport } from "next";
-import { Outfit, IBM_Plex_Sans } from "next/font/google";
+import { Space_Grotesk, Manrope, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const outfit = Outfit({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  variable: "--font-outfit",
-  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-space-grotesk",
+  weight: ["400", "500", "600", "700"],
 });
 
-const ibmPlex = IBM_Plex_Sans({
+const manrope = Manrope({
   subsets: ["latin"],
-  variable: "--font-ibm-plex",
-  weight: ["400", "500", "600"],
+  variable: "--font-manrope",
+  weight: ["400", "500", "600", "700"],
+});
+
+const jetbrains = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains",
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
-  title: "VORTT — HVAC Operations Platform",
+  title: "VORTT — HVAC Operations",
   description: "AI-powered dispatch, contracts, and field operations for independent HVAC contractors.",
   manifest: "/manifest.json",
   appleWebApp: {
@@ -30,17 +36,13 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#1C1C1E",
+  themeColor: "#080809",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={`${outfit.variable} ${ibmPlex.variable} antialiased`}>
+    <html lang="en" className="dark">
+      <body className={`${spaceGrotesk.variable} ${manrope.variable} ${jetbrains.variable}`}>
         {children}
       </body>
     </html>

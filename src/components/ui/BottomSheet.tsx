@@ -15,14 +15,8 @@ interface BottomSheetProps {
 
 export function BottomSheet({ open, onClose, title, children, className }: BottomSheetProps) {
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
   }, [open]);
 
   return (
@@ -33,7 +27,7 @@ export function BottomSheet({ open, onClose, title, children, className }: Botto
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-40"
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40"
             onClick={onClose}
           />
           <motion.div
@@ -42,23 +36,22 @@ export function BottomSheet({ open, onClose, title, children, className }: Botto
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
             className={cn(
-              "fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl shadow-2xl",
+              "fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl shadow-2xl",
               "max-h-[90vh] overflow-y-auto",
               className
             )}
+            style={{ background: "#111116", border: "1px solid rgba(255,255,255,0.1)" }}
           >
-            <div className="flex items-center justify-between p-5 border-b border-zinc-100">
-              <div className="w-10 h-1 bg-zinc-300 rounded-full mx-auto absolute left-1/2 -translate-x-1/2 top-3" />
+            <div className="flex items-center justify-between p-5" style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+              <div className="w-8 h-1 rounded-full absolute left-1/2 -translate-x-1/2 top-3" style={{ background: "rgba(255,255,255,0.15)" }} />
               {title && (
-                <h2 className="font-heading font-semibold text-lg text-vortt-charcoal">
-                  {title}
-                </h2>
+                <h2 className="font-heading font-semibold text-base text-[#F8F8FA]">{title}</h2>
               )}
               <button
                 onClick={onClose}
-                className="ml-auto p-2 rounded-xl hover:bg-zinc-100 transition-colors"
+                className="ml-auto p-1.5 rounded-lg transition-colors hover:bg-white/[0.06]"
               >
-                <X className="w-5 h-5 text-zinc-500" />
+                <X className="w-4 h-4 text-[rgba(248,248,250,0.5)]" />
               </button>
             </div>
             <div className="p-5 pb-safe">{children}</div>

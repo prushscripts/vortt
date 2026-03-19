@@ -1,44 +1,85 @@
 @import "tailwindcss";
 
 @theme {
-  --color-vortt-orange: #F97316;
-  --color-vortt-charcoal: #1C1C1E;
-  --color-vortt-slate: #2C2C2E;
-  --color-vortt-mist: #F5F5F7;
-  --color-vortt-green: #34C759;
-  --color-vortt-red: #FF3B30;
-  --color-vortt-amber: #FF9F0A;
+  --color-vortt-bg:         #080809;
+  --color-vortt-sidebar:    #0D0D10;
+  --color-vortt-card:       #111116;
+  --color-vortt-border:     rgba(255,255,255,0.07);
+  --color-vortt-orange:     #FF6B2B;
+  --color-vortt-text:       #F8F8FA;
+  --color-vortt-secondary:  rgba(248,248,250,0.65);
+  --color-vortt-muted:      rgba(248,248,250,0.38);
+  --color-vortt-green:      #22C55E;
+  --color-vortt-red:        #F43F5E;
+  --color-vortt-amber:      #F59E0B;
+  --color-vortt-blue:       #3B82F6;
 }
 
-* {
+*, *::before, *::after {
+  box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
 }
 
+html {
+  color-scheme: dark;
+}
+
 body {
-  @apply bg-vortt-mist text-vortt-charcoal;
-  font-family: var(--font-ibm-plex, "IBM Plex Sans"), sans-serif;
+  background-color: #080809;
+  color: #F8F8FA;
+  font-family: var(--font-manrope, "Manrope"), sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-outfit, "Outfit"), sans-serif;
+  font-family: var(--font-space-grotesk, "Space Grotesk"), sans-serif;
+  font-weight: 700;
+  color: #F8F8FA;
 }
 
-/* iOS-style touch feedback */
-.touch-active:active {
-  transform: scale(0.97);
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* Hide scrollbar utility */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Selection */
+::selection { background: rgba(255,107,43,0.25); color: #F8F8FA; }
+
+/* Focus ring */
+:focus-visible { outline: 2px solid rgba(255,107,43,0.6); outline-offset: 2px; border-radius: 6px; }
+
+/* Mono utility */
+.font-mono-label {
+  font-family: var(--font-jetbrains, "JetBrains Mono"), monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
 }
 
-/* Swipe card styles */
-.swipe-card {
-  touch-action: pan-y;
-  user-select: none;
+/* Card base */
+.card {
+  background: #111116;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
 }
 
-/* Hide scrollbar but keep functionality */
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
+/* Subtle glow on orange accent */
+.glow-orange {
+  box-shadow: 0 0 20px rgba(255,107,43,0.25);
 }
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+
+/* Active nav item */
+.nav-active {
+  background: rgba(255,255,255,0.06);
+  color: #F8F8FA;
 }
+
+/* Mobile safe area */
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
