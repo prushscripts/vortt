@@ -1,6 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -42,24 +41,6 @@ export async function middleware(request: NextRequest) {
   }
   if (user && isAuthRoute) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
-
-  if (user) {
-    const isBlockedRoute =
-      !path.startsWith("/pricing") &&
-      !path.startsWith("/api/stripe") &&
-      !path.startsWith("/settings");
-
-    if (isBlockedRoute) {
-      const company = await prisma.company.findFirst({
-        where: { ownerAuthId: user.id },
-        select: { subscriptionStatus: true },
-      });
-      const blockedStatuses = ["cancelled", "past_due"];
-      if (company && blockedStatuses.includes(company.subscriptionStatus ?? "")) {
-        return NextResponse.redirect(new URL("/pricing?expired=true", request.url));
-      }
-    }
   }
 
   return supabaseResponse;
