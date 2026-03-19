@@ -1,0 +1,38 @@
+{
+  "name": "VORTT — HVAC Operations",
+  "short_name": "VORTT",
+  "description": "AI-powered dispatch and field operations for HVAC contractors",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#1C1C1E",
+  "theme_color": "#F97316",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "categories": ["business", "productivity"],
+  "shortcuts": [
+    {
+      "name": "New Job",
+      "url": "/jobs/new",
+      "description": "Schedule a new service call"
+    },
+    {
+      "name": "Dispatch Board",
+      "url": "/dispatch",
+      "description": "Open the dispatch board"
+    }
+  ]
+}

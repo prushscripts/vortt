@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Company {
+  id          String   @id @default(cuid())
+  name        String
+  phone       String?
+  address     String?
+  stripeId    String?
+  planTier    String   @default("starter")
+  createdAt   DateTime @default(now())
+  techs       Tech[]
+  customers   Customer[]
+  jobs        Job[]
+  parts       Part[]
+  contracts   MaintenanceContract[]
+}
+
+model Tech {
+  id           String    @id @default(cuid())
+  companyId    String
+  name         String
+  phone        String
+  email        String?
+  skills       String[]
+  vanInventory Json?
+  isActive     Boolean   @default(true)
+  lat          Float?
+  lng          Float?
+  lastSeen     DateTime?
+  createdAt    DateTime  @default(now())
+  company      Company   @relation(fields: [companyId], references: [id])
+  jobs         Job[]
+}
+
+model Customer {
+  id        String    @id @default(cuid())
+  companyId String
+  firstName String
+  lastName  String
+  phone     String
+  email     String?
+  address   String
+  lat       Float?
+  lng       Float?
+  equipment Json?
+  notes     String?
+  createdAt DateTime  @default(now())
+  company   Company   @relation(fields: [companyId], references: [id])
+  jobs      Job[]
+  contracts MaintenanceContract[]
+}
+
+model Job {
+  id           String    @id @default(cuid())
+  companyId    String
+  customerId   String
+  techId       String?
+  jobType      String
+  status       String    @default("scheduled")
+  priority     String    @default("normal")
+  scheduledAt  DateTime?
+  startedAt    DateTime?
+  completedAt  DateTime?
+  description  String?
+  techNotes    String?
+  photos       String[]
+  partsUsed    Json?
+  laborMinutes Int?
+  totalAmount  Float?
+  invoiceSent  Boolean   @default(false)
+  reviewSent   Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  company      Company   @relation(fields: [companyId], references: [id])
+  customer     Customer  @relation(fields: [customerId], references: [id])
+  tech         Tech?     @relation(fields: [techId], references: [id])
+}
+
+model Part {
+  id          String   @id @default(cuid())
+  companyId   String
+  name        String
+  partNumber  String?
+  supplier    String?
+  unitCost    Float
+  sellPrice   Float
+  stockQty    Int      @default(0)
+  minStock    Int      @default(2)
+  createdAt   DateTime @default(now())
+  company     Company  @relation(fields: [companyId], references: [id])
+}
+
+model MaintenanceContract {
+  id           String   @id @default(cuid())
+  companyId    String
+  customerId   String
+  tier         String
+  price        Float
+  startDate    DateTime
+  renewalDate  DateTime
+  status       String   @default("active")
+  autoRenew    Boolean  @default(false)
+  outreachSent Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  company      Company  @relation(fields: [companyId], references: [id])
+  customer     Customer @relation(fields: [customerId], references: [id])
+}
