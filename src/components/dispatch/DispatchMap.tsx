@@ -154,7 +154,7 @@ function FallbackMap({ techs, jobs, assignments, selectedJobId }: DispatchMapPro
   const TECH_COLORS = ["#F97316", "#34C759", "#007AFF", "#FF9F0A"];
 
   return (
-    <div className="w-full h-full bg-gradient-to-br from-zinc-100 to-zinc-200 flex flex-col">
+    <div className="w-full h-full bg-[#1C1C1F] flex flex-col">
       {/* Map placeholder header */}
       <div className="absolute top-4 left-4 right-4 z-10 flex items-center justify-between">
         <div className="bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-sm border border-zinc-200">
@@ -288,15 +288,15 @@ function FallbackMap({ techs, jobs, assignments, selectedJobId }: DispatchMapPro
       </div>
 
       {/* Bottom legend */}
-      <div className="absolute bottom-4 left-4 right-4">
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl px-4 py-3 shadow-sm border border-zinc-200">
+      <div className="absolute bottom-0 left-0 right-0">
+        <div className="bg-[#161618] border-t border-t-[#2A2A2E] px-4 py-3">
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <p className="text-xs font-semibold text-zinc-600">{techs.length} techs · {jobs.length} jobs</p>
+            <p className="text-xs font-semibold text-[#8E8E93]">{techs.length} techs · {jobs.length} jobs</p>
             <div className="flex items-center gap-3">
               {techs.slice(0, 4).map((tech, i) => (
                 <div key={tech.id} className="flex items-center gap-1">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: TECH_COLORS[i % TECH_COLORS.length] }} />
-                  <span className="text-xs text-zinc-500">{tech.name.split(" ")[0]}</span>
+                  <span className="text-xs text-[#8E8E93]">{tech.name.split(" ")[0]}</span>
                 </div>
               ))}
             </div>

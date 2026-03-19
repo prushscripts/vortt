@@ -202,16 +202,16 @@ export default function DispatchPage() {
             {suggestions.map((card) => (
               <div
                 key={card.suggestion.jobId}
-                className="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-2xl p-4"
+                className="bg-[#161618] border border-[#2A2A2E] rounded-[14px] p-4"
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <PriorityBadge priority={card.job.priority} />
-                    <span className="text-xs font-semibold text-vortt-charcoal">
+                    <span className="text-xs font-semibold text-[#F8F8FA]">
                       {card.job.customer?.firstName} {card.job.customer?.lastName}
                     </span>
                   </div>
-                  <button onClick={() => dismissSuggestion(card.suggestion.jobId)} className="text-zinc-400 hover:text-zinc-600 p-1">
+                  <button onClick={() => dismissSuggestion(card.suggestion.jobId)} className="text-zinc-500 hover:text-zinc-300 p-1">
                     <X className="w-4 h-4" />
                   </button>
                 </div>
@@ -223,12 +223,12 @@ export default function DispatchPage() {
                     </span>
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-vortt-charcoal">{card.tech.name}</p>
-                    <p className="text-xs text-zinc-500">~{card.suggestion.estimatedDriveMinutes} min away</p>
+                    <p className="text-sm font-semibold text-[#F8F8FA]">{card.tech.name}</p>
+                    <p className="text-xs text-[#8E8E93]">~{card.suggestion.estimatedDriveMinutes} min away</p>
                   </div>
                 </div>
 
-                <p className="text-xs text-zinc-600 mb-3 leading-relaxed">{card.suggestion.reasoning}</p>
+                <p className="text-xs text-[#8E8E93] mb-3 leading-relaxed">{card.suggestion.reasoning}</p>
 
                 <Button
                   size="sm"
@@ -256,8 +256,8 @@ export default function DispatchPage() {
                   <button
                     key={job.id}
                     onClick={() => setSelectedJob(selectedJob?.id === job.id ? null : job)}
-                    className={`w-full text-left bg-white rounded-2xl border p-4 transition-all ${
-                      selectedJob?.id === job.id ? "border-vortt-orange shadow-md" : "border-zinc-100 shadow-sm hover:border-zinc-200"
+                    className={`w-full text-left bg-[#161618] border border-[#2A2A2E] rounded-[14px] p-4 transition-all ${
+                      selectedJob?.id === job.id ? "border-vortt-orange" : "hover:border-[#3a3a40]"
                     }`}
                   >
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
@@ -298,7 +298,7 @@ export default function DispatchPage() {
       </div>
 
       {/* RIGHT: Map Panel */}
-      <div className="flex-1 relative min-h-[400px] lg:min-h-0 rounded-2xl overflow-hidden">
+      <div className="flex-1 relative min-h-[400px] lg:min-h-0 rounded-2xl overflow-hidden bg-[#1C1C1F]">
         <DispatchMap
           techs={mockTechs}
           jobs={allJobs}
