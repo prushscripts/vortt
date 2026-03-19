@@ -91,12 +91,18 @@ export default function SignupPage() {
 
       <section className="relative flex w-full md:w-[55%] items-center justify-center bg-[#0E0E10] p-8">
         <div
-          className="pointer-events-none absolute z-0 h-[300px] w-[300px] rounded-full"
           style={{
-            background: "radial-gradient(circle, rgba(255,107,43,0.06) 0%, transparent 70%)",
-            top: "20%",
+            position: "absolute",
+            width: "500px",
+            height: "500px",
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(255,107,43,0.10) 0%, rgba(255,107,43,0.04) 40%, transparent 70%)",
+            top: "30%",
             left: "50%",
             transform: "translate(-50%, -50%)",
+            zIndex: 0,
+            pointerEvents: "none",
+            animation: "orbPulse 6s ease-in-out infinite",
           }}
         />
         <div className="relative z-10 w-full max-w-[420px]">
