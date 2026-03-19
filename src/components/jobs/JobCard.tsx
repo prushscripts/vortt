@@ -41,7 +41,7 @@ export function JobCard({ job, onSwipeRight, onSwipeLeft, onClick, compact = fal
   return (
     <div ref={dragConstraintsRef} className="relative overflow-hidden rounded-card">
       <motion.div
-        style={{ x }}
+        style={{ x, background: "#111116", border: "1px solid rgba(255,255,255,0.07)" }}
         drag={(onSwipeLeft || onSwipeRight) ? "x" : false}
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.15}
@@ -51,7 +51,6 @@ export function JobCard({ job, onSwipeRight, onSwipeLeft, onClick, compact = fal
           "rounded-card cursor-pointer transition-all hover:border-white/[0.12]",
           compact ? "p-3.5" : "p-4"
         )}
-        style={{ background: "#111116", border: "1px solid rgba(255,255,255,0.07)" }}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
