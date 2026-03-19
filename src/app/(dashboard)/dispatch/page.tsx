@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { Sparkles, CheckCircle, X, AlertTriangle, User, MapPin, Clock, Loader2, Navigation } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge, PriorityBadge } from "@/components/ui/Badge";
 import { DispatchMap } from "@/components/dispatch/DispatchMap";
 import { formatDateTime } from "@/lib/utils/format";
+import { useCompanyId } from "@/hooks/useCompanyId";
 import type { Job, Tech, DispatchSuggestion } from "@/types";
 
 // Mock techs with current locations
@@ -67,17 +68,31 @@ interface SuggestionCard {
 }
 
 export default function DispatchPage() {
+  const { companyId } = useCompanyId();
+  const [techs, setTechs] = useState<Tech[]>(mockTechs);
+  const [jobs, setJobs] = useState<Job[]>(mockJobs);
   const [suggestions, setSuggestions] = useState<SuggestionCard[]>([]);
   const [loadingAI, setLoadingAI] = useState(false);
   const [assignments, setAssignments] = useState<Map<string, string>>(new Map()); // jobId -> techId
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [acceptedCount, setAcceptedCount] = useState(0);
 
-  const unassignedJobs = mockJobs.filter(j => !assignments.has(j.id));
-  const allJobs = [...assignedJobs, ...mockJobs.map(j => ({
+  useEffect(() => {
+    if (!companyId) return;
+    Promise.all([
+      fetch(`/api/jobs?companyId=${companyId}`).then((r) => r.json()),
+      fetch(`/api/techs?companyId=${companyId}`).then((r) => r.json()),
+    ]).then(([jobsRes, techsRes]) => {
+      setJobs(Array.isArray(jobsRes) ? jobsRes : []);
+      setTechs(Array.isArray(techsRes) ? techsRes : []);
+    });
+  }, [companyId]);
+
+  const unassignedJobs = jobs.filter((j) => !j.techId && !assignments.has(j.id));
+  const allJobs = [...assignedJobs, ...jobs.map(j => ({
     ...j,
     techId: assignments.get(j.id),
-    tech: assignments.has(j.id) ? mockTechs.find(t => t.id === assignments.get(j.id)) : undefined,
+    tech: assignments.has(j.id) ? techs.find(t => t.id === assignments.get(j.id)) : undefined,
     status: assignments.has(j.id) ? "scheduled" as const : j.status,
   }))];
 
@@ -100,7 +115,7 @@ export default function DispatchPage() {
             customerAddress: j.customer?.address,
             scheduledAt: j.scheduledAt,
           })),
-          techs: mockTechs.map(t => ({
+          techs: techs.map(t => ({
             id: t.id,
             name: t.name,
             skills: t.skills,
@@ -115,7 +130,7 @@ export default function DispatchPage() {
 
       const cards: SuggestionCard[] = (data.assignments ?? []).map((s: DispatchSuggestion) => {
         const job = unassignedJobs.find(j => j.id === s.jobId);
-        const tech = mockTechs.find(t => t.id === s.techId);
+        const tech = techs.find(t => t.id === s.techId);
         return job && tech ? { suggestion: s, job, tech } : null;
       }).filter(Boolean);
 
@@ -125,12 +140,12 @@ export default function DispatchPage() {
       const demoCards: SuggestionCard[] = unassignedJobs.slice(0, 3).map((job, i) => ({
         suggestion: {
           jobId: job.id,
-          techId: mockTechs[i % mockTechs.length].id,
-          reasoning: `${mockTechs[i % mockTechs.length].name} is closest to ${job.customer?.address} and has the right skills for this ${job.jobType}.`,
+          techId: techs[i % techs.length]?.id ?? "",
+          reasoning: `${techs[i % techs.length]?.name ?? "A tech"} is closest to ${job.customer?.address} and has the right skills for this ${job.jobType}.`,
           estimatedDriveMinutes: 8 + i * 5,
         },
         job,
-        tech: mockTechs[i % mockTechs.length],
+        tech: techs[i % techs.length],
       }));
       setSuggestions(demoCards);
     } finally {
@@ -145,6 +160,11 @@ export default function DispatchPage() {
 
     // Send SMS notifications (owner already approved by clicking Accept)
     try {
+      await fetch(`/api/jobs/${card.suggestion.jobId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ techId: card.suggestion.techId, status: "scheduled" }),
+      });
       const customerMsg = `Your HVAC tech ${card.tech.name} is scheduled for ${
         card.job.scheduledAt ? new Date(card.job.scheduledAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "today"
       }. You'll get a heads up when they're on the way.`;
@@ -154,6 +174,7 @@ export default function DispatchPage() {
       await Promise.all([
         fetch("/api/sms", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ to: card.job.customer?.phone, body: customerMsg, type: "customer_notification" }) }),
         fetch("/api/sms", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ to: card.tech.phone, body: techMsg, type: "tech_assignment" }) }),
+        fetch("/api/sms/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jobId: card.suggestion.jobId, type: "tech_assigned" }) }),
       ]);
     } catch {
       // Silent fail — assignment still saved
@@ -166,7 +187,7 @@ export default function DispatchPage() {
 
   const statusGroups = [
     { label: "Unassigned", jobs: unassignedJobs, color: "text-vortt-red" },
-    { label: "Assigned", jobs: mockJobs.filter(j => assignments.has(j.id)), color: "text-vortt-green" },
+    { label: "Assigned", jobs: jobs.filter(j => assignments.has(j.id)), color: "text-vortt-green" },
     { label: "In Progress", jobs: assignedJobs.filter(j => j.status === "in_progress"), color: "text-vortt-orange" },
   ];
 
@@ -260,6 +281,11 @@ export default function DispatchPage() {
                       selectedJob?.id === job.id ? "border-vortt-orange" : "hover:border-[#3a3a40]"
                     }`}
                   >
+                    {!job.techId && suggestions.find((s) => s.job.id === job.id) ? (
+                      <div className="mb-2 rounded-lg border border-[rgba(255,107,43,0.3)] bg-[rgba(255,107,43,0.08)] px-3 py-2 text-xs text-[var(--text-secondary)]">
+                        AI suggests: <strong className="text-[var(--text-primary)]">{suggestions.find((s) => s.job.id === job.id)?.tech.name}</strong>
+                      </div>
+                    ) : null}
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
                       {job.priority === "emergency" && <PriorityBadge priority="emergency" />}
                       {job.priority === "high" && <PriorityBadge priority="high" />}
@@ -300,7 +326,7 @@ export default function DispatchPage() {
       {/* RIGHT: Map Panel */}
       <div className="flex-1 relative min-h-[400px] lg:min-h-0 rounded-2xl overflow-hidden bg-[#1C1C1F]">
         <DispatchMap
-          techs={mockTechs}
+          techs={techs}
           jobs={allJobs}
           selectedJobId={selectedJob?.id}
           assignments={assignments}

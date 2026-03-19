@@ -32,10 +32,12 @@ export async function GET(req: NextRequest) {
     scheduledAtFilter = { scheduledAt: { gte: start, lte: end } };
   }
 
+  const statusList = status?.includes(",") ? status.split(",").map((s) => s.trim()) : null;
+
   const jobs = await prisma.job.findMany({
     where: {
       companyId,
-      ...(status ? { status } : {}),
+      ...(statusList ? { status: { in: statusList } } : status ? { status } : {}),
       ...scheduledAtFilter,
     },
     include: {

@@ -34,7 +34,8 @@ export default function SignupPage() {
       options: { data: { company_name: data.companyName, phone: data.phone } },
     });
     if (error) { setError(error.message); return; }
-    router.push("/dashboard");
+    await fetch("/api/auth/company", { method: "POST" });
+    router.push("/pricing");
     router.refresh();
   };
 

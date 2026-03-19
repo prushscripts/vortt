@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Package, AlertTriangle, Plus, TrendingDown } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency } from "@/lib/utils/format";
+import { useCompanyId } from "@/hooks/useCompanyId";
 import type { Part } from "@/types";
 
 const mockParts: Part[] = [
@@ -17,8 +18,16 @@ const mockParts: Part[] = [
 ];
 
 export default function InventoryPage() {
-  const [parts, setParts] = useState(mockParts);
+  const { companyId } = useCompanyId();
+  const [parts, setParts] = useState<Part[]>(mockParts);
   const [filter, setFilter] = useState<"all" | "low" | "out">("all");
+
+  useEffect(() => {
+    if (!companyId) return;
+    fetch(`/api/inventory?companyId=${companyId}`)
+      .then((r) => r.json())
+      .then((d) => setParts(Array.isArray(d) ? d : []));
+  }, [companyId]);
 
   const lowStock = parts.filter(p => p.stockQty > 0 && p.stockQty <= p.minStock);
   const outOfStock = parts.filter(p => p.stockQty === 0);
@@ -115,8 +124,36 @@ export default function InventoryPage() {
                   <p className="text-xs text-zinc-400">min: {part.minStock}</p>
                 </div>
                 <div className="flex gap-1">
-                  <button className="w-8 h-8 rounded-lg border border-zinc-200 flex items-center justify-center text-zinc-600 hover:bg-zinc-50 text-lg font-bold transition-colors">−</button>
-                  <button className="w-8 h-8 rounded-lg bg-vortt-orange text-white flex items-center justify-center text-lg font-bold hover:bg-orange-600 transition-colors">+</button>
+                  <button
+                    onClick={async () => {
+                      const quantity = Math.max(0, part.stockQty - 1);
+                      const res = await fetch(`/api/inventory/${part.id}`, {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ quantity }),
+                      });
+                      const updated = await res.json();
+                      setParts((prev) => prev.map((p) => (p.id === part.id ? updated : p)));
+                    }}
+                    className="w-8 h-8 rounded-lg border border-zinc-200 flex items-center justify-center text-zinc-600 hover:bg-zinc-50 text-lg font-bold transition-colors"
+                  >
+                    −
+                  </button>
+                  <button
+                    onClick={async () => {
+                      const quantity = part.stockQty + 1;
+                      const res = await fetch(`/api/inventory/${part.id}`, {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ quantity }),
+                      });
+                      const updated = await res.json();
+                      setParts((prev) => prev.map((p) => (p.id === part.id ? updated : p)));
+                    }}
+                    className="w-8 h-8 rounded-lg bg-vortt-orange text-white flex items-center justify-center text-lg font-bold hover:bg-orange-600 transition-colors"
+                  >
+                    +
+                  </button>
                 </div>
               </div>
             </Card>

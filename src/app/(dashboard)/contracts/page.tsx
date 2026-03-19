@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FileText, AlertTriangle, DollarSign, Send, CheckCircle, X, Loader2 } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ContractBadge } from "@/components/ui/Badge";
 import { formatCurrency, formatDate, daysUntil } from "@/lib/utils/format";
+import { useCompanyId } from "@/hooks/useCompanyId";
 import type { MaintenanceContract } from "@/types";
 
 // Mock data — replace with API
@@ -52,7 +53,8 @@ interface OutreachState {
 }
 
 export default function ContractsPage() {
-  const [contracts, setContracts] = useState(mockContracts);
+  const { companyId } = useCompanyId();
+  const [contracts, setContracts] = useState<MaintenanceContract[]>(mockContracts);
   const [outreach, setOutreach] = useState<OutreachState | null>(null);
   const [sendingAll, setSendingAll] = useState(false);
 
@@ -60,17 +62,20 @@ export default function ContractsPage() {
   const expired = contracts.filter(c => c.status === "expired");
   const atRiskValue = [...expiringSoon, ...expired].reduce((sum, c) => sum + c.price, 0);
 
+  useEffect(() => {
+    if (!companyId) return;
+    fetch(`/api/contracts?companyId=${companyId}`)
+      .then((r) => r.json())
+      .then((d) => setContracts(Array.isArray(d) ? d : []));
+  }, [companyId]);
+
   const generateDraft = async (contract: MaintenanceContract) => {
     setOutreach({ contractId: contract.id, draft: "", loading: true, sent: false });
     try {
-      const res = await fetch("/api/contracts/outreach", {
+      const res = await fetch("/api/contracts/renewal-draft", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contractId: contract.id,
-          companyName: "Smith HVAC Services",
-          action: "draft",
-        }),
+        body: JSON.stringify({ contractId: contract.id }),
       });
       if (!res.ok) throw new Error();
       const data = await res.json();
@@ -266,6 +271,17 @@ export default function ContractsPage() {
                           Renew
                         </Button>
                       )}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={async () => {
+                          const res = await fetch(`/api/contracts/${contract.id}`, { method: "PATCH" });
+                          const updated = await res.json();
+                          setContracts((prev) => prev.map((c) => (c.id === contract.id ? updated : c)));
+                        }}
+                      >
+                        Extend +1y
+                      </Button>
                     </div>
                   </div>
                 </div>

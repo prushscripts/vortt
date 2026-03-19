@@ -10,6 +10,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea, Select } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
+import { useCompanyId } from "@/hooks/useCompanyId";
 
 const equipmentSchema = z.object({
   type: z.string().min(1, "Required"),
@@ -42,6 +43,7 @@ const equipmentTypes = [
 ];
 
 export default function NewCustomerPage() {
+  const { companyId } = useCompanyId();
   const router = useRouter();
   const [error, setError] = useState("");
 
@@ -65,7 +67,7 @@ export default function NewCustomerPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...data,
-          companyId: "demo-company", // replace with real companyId from auth
+          companyId,
           equipment: data.equipment.map((e) => ({
             ...e,
             installedYear: e.installedYear ? parseInt(e.installedYear) : undefined,

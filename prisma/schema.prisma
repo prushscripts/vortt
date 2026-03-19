@@ -7,18 +7,24 @@ datasource db {
 }
 
 model Company {
-  id          String   @id @default(cuid())
-  name        String
-  phone       String?
-  address     String?
-  stripeId    String?
-  planTier    String   @default("starter")
-  createdAt   DateTime @default(now())
-  techs       Tech[]
-  customers   Customer[]
-  jobs        Job[]
-  parts       Part[]
-  contracts   MaintenanceContract[]
+  id                   String   @id @default(cuid())
+  name                 String
+  phone                String?
+  address              String?
+  stripeId             String?
+  ownerAuthId          String?  @unique
+  planTier             String   @default("starter")
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  plan                 String?  @default("starter")
+  subscriptionStatus   String?  @default("trialing")
+  createdAt            DateTime @default(now())
+  techs                Tech[]
+  customers            Customer[]
+  jobs                 Job[]
+  parts                Part[]
+  contracts            MaintenanceContract[]
+  invoices             Invoice[]
 }
 
 model Tech {
@@ -54,6 +60,7 @@ model Customer {
   company   Company   @relation(fields: [companyId], references: [id])
   jobs      Job[]
   contracts MaintenanceContract[]
+  invoices  Invoice[]
 }
 
 model Job {
@@ -109,4 +116,22 @@ model MaintenanceContract {
   createdAt    DateTime @default(now())
   company      Company  @relation(fields: [companyId], references: [id])
   customer     Customer @relation(fields: [customerId], references: [id])
+}
+
+model Invoice {
+  id          String   @id @default(cuid())
+  companyId   String
+  customerId  String
+  invoiceNo   String
+  status      String   @default("draft")
+  totalAmount Float
+  dueDate     DateTime?
+  sentAt      DateTime?
+  paidAt      DateTime?
+  lineItems   Json?
+  createdAt   DateTime @default(now())
+  company     Company  @relation(fields: [companyId], references: [id])
+  customer    Customer @relation(fields: [customerId], references: [id])
+
+  @@unique([companyId, invoiceNo])
 }

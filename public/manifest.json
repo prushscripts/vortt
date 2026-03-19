@@ -1,38 +1,17 @@
 {
-  "name": "VORTT — HVAC Operations",
+  "name": "VORTT",
   "short_name": "VORTT",
-  "description": "AI-powered dispatch and field operations for HVAC contractors",
+  "description": "AI Operations Platform for HVAC Contractors",
   "start_url": "/dashboard",
   "display": "standalone",
-  "background_color": "#1C1C1E",
-  "theme_color": "#F97316",
-  "orientation": "any",
+  "background_color": "#0E0E10",
+  "theme_color": "#FF6B2B",
+  "orientation": "portrait-primary",
   "icons": [
-    {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "screenshots": [],
-  "categories": ["business", "productivity"],
-  "shortcuts": [
-    {
-      "name": "New Job",
-      "url": "/jobs/new",
-      "description": "Schedule a new service call"
-    },
-    {
-      "name": "Dispatch Board",
-      "url": "/dispatch",
-      "description": "Open the dispatch board"
-    }
-  ]
+  "categories": ["business", "productivity"]
 }

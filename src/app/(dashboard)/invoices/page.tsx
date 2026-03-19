@@ -1,30 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DollarSign, Send, CheckCircle, FileText, Clock, AlertCircle } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { useCompanyId } from "@/hooks/useCompanyId";
 
 interface Invoice {
   id: string;
-  invoiceNumber: string;
+  invoiceNo: string;
   customerName: string;
   customerPhone: string;
   jobType: string;
-  amount: number;
+  totalAmount: number;
   status: "draft" | "sent" | "paid" | "overdue";
   createdAt: string;
   dueDate: string;
 }
-
-const mockInvoices: Invoice[] = [
-  { id: "inv1", invoiceNumber: "INV-1042", customerName: "Maria Gonzalez", customerPhone: "5121234567", jobType: "AC Repair", amount: 680, status: "paid", createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(), dueDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString() },
-  { id: "inv2", invoiceNumber: "INV-1041", customerName: "Robert Chen", customerPhone: "5123456789", jobType: "New Installation", amount: 4200, status: "sent", createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(), dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 25).toISOString() },
-  { id: "inv3", invoiceNumber: "INV-1040", customerName: "Sandra Kim", customerPhone: "5122345678", jobType: "Maintenance", amount: 189, status: "overdue", createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 35).toISOString(), dueDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString() },
-  { id: "inv4", invoiceNumber: "INV-1043", customerName: "James Whitfield", customerPhone: "5129876543", jobType: "Heat Pump Repair", amount: 520, status: "draft", createdAt: new Date().toISOString(), dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString() },
-];
 
 const statusConfig: Record<Invoice["status"], { label: string; color: string; bg: string }> = {
   draft: { label: "Draft", color: "text-zinc-600", bg: "bg-zinc-100" },
@@ -34,17 +28,43 @@ const statusConfig: Record<Invoice["status"], { label: string; color: string; bg
 };
 
 export default function InvoicesPage() {
-  const [invoices, setInvoices] = useState(mockInvoices);
+  const { companyId } = useCompanyId();
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [filter, setFilter] = useState<Invoice["status"] | "all">("all");
 
-  const totalPaid = invoices.filter(i => i.status === "paid").reduce((s, i) => s + i.amount, 0);
-  const totalOutstanding = invoices.filter(i => i.status === "sent" || i.status === "overdue").reduce((s, i) => s + i.amount, 0);
-  const totalOverdue = invoices.filter(i => i.status === "overdue").reduce((s, i) => s + i.amount, 0);
+  useEffect(() => {
+    if (!companyId) return;
+    fetch(`/api/invoices?companyId=${companyId}`)
+      .then((r) => r.json())
+      .then((rows) =>
+        setInvoices(
+          (rows ?? []).map((r: { id: string; invoiceNo: string; status: Invoice["status"]; createdAt: string; dueDate: string; totalAmount: number; customer: { firstName: string; lastName: string; phone: string } }) => ({
+            id: r.id,
+            invoiceNo: r.invoiceNo,
+            customerName: `${r.customer?.firstName ?? ""} ${r.customer?.lastName ?? ""}`.trim(),
+            customerPhone: r.customer?.phone ?? "",
+            jobType: "HVAC Service",
+            totalAmount: r.totalAmount,
+            status: r.status,
+            createdAt: r.createdAt,
+            dueDate: r.dueDate,
+          }))
+        )
+      );
+  }, [companyId]);
+
+  const totalPaid = invoices.filter(i => i.status === "paid").reduce((s, i) => s + i.totalAmount, 0);
+  const totalOutstanding = invoices.filter(i => i.status === "sent" || i.status === "overdue").reduce((s, i) => s + i.totalAmount, 0);
+  const totalOverdue = invoices.filter(i => i.status === "overdue").reduce((s, i) => s + i.totalAmount, 0);
 
   const filtered = filter === "all" ? invoices : invoices.filter(i => i.status === filter);
 
   const sendInvoice = (id: string) => {
-    setInvoices(prev => prev.map(i => i.id === id ? { ...i, status: "sent" } : i));
+    fetch(`/api/invoices/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "sent" }),
+    }).then(() => setInvoices(prev => prev.map(i => i.id === id ? { ...i, status: "sent" } : i)));
   };
 
   return (
@@ -109,7 +129,7 @@ export default function InvoicesPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                    <span className="font-heading font-semibold text-vortt-charcoal">{invoice.invoiceNumber}</span>
+                    <span className="font-heading font-semibold text-vortt-charcoal">{invoice.invoiceNo}</span>
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${status.color} ${status.bg}`}>
                       {status.label}
                     </span>
@@ -119,7 +139,7 @@ export default function InvoicesPage() {
                 </div>
                 <div className="flex-shrink-0 text-right">
                   <p className="font-heading font-bold text-lg text-vortt-charcoal">
-                    {formatCurrency(invoice.amount)}
+                    {formatCurrency(invoice.totalAmount)}
                   </p>
                   {invoice.status === "draft" && (
                     <Button size="sm" className="mt-1" onClick={() => sendInvoice(invoice.id)}>
@@ -127,6 +147,9 @@ export default function InvoicesPage() {
                       Send
                     </Button>
                   )}
+                  <a href={`/api/invoices/${invoice.id}/pdf`} target="_blank" rel="noreferrer" className="block mt-1 text-xs text-vortt-orange">
+                    Download PDF
+                  </a>
                 </div>
               </div>
             </Card>

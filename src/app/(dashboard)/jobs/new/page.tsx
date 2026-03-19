@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/Button";
 import { Input, Textarea, Select } from "@/components/ui/Input";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { formatCurrency } from "@/lib/utils/format";
+import { useCompanyId } from "@/hooks/useCompanyId";
 import type { QuoteResult } from "@/types";
 
 const schema = z.object({
@@ -42,6 +43,7 @@ const mockTechs = [
 ];
 
 export default function NewJobPage() {
+  const { companyId } = useCompanyId();
   const router = useRouter();
   const [error, setError] = useState("");
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -101,7 +103,7 @@ export default function NewJobPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...data,
-          companyId: "demo-company",
+          companyId,
           totalAmount: data.totalAmount ? parseFloat(data.totalAmount) : undefined,
         }),
       });

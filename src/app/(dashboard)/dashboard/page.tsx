@@ -1,9 +1,12 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency, formatRelative } from "@/lib/utils/format";
+import { useCompanyId } from "@/hooks/useCompanyId";
 import type { DashboardMetrics, ActivityItem } from "@/types";
 
 const mockMetrics: DashboardMetrics = {
@@ -51,7 +54,54 @@ function StatCard({ label, value, sub, accent }: { label: string; value: string;
 }
 
 export default function DashboardPage() {
-  const m = mockMetrics;
+  const { companyId } = useCompanyId();
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [toastVisible, setToastVisible] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!companyId) return;
+    fetch(`/api/dashboard/metrics?companyId=${companyId}`)
+      .then((r) => r.json())
+      .then((d) =>
+        setMetrics({
+          todayJobs: d.jobsToday ?? 0,
+          assignedJobs: d.dispatchStatus?.assigned ?? 0,
+          unassignedJobs: d.unassigned ?? 0,
+          revenueThisMonth: d.revenueMTD ?? 0,
+          revenueCollected: d.revenueMTD ?? 0,
+          revenueOutstanding: d.outstanding ?? 0,
+          contractsExpiringSoon: d.expiringContracts ?? 0,
+          contractsExpiringValue: d.atRiskValue ?? 0,
+          techUtilization: (d.techUtilization ?? []).map((t: { id: string; name: string; assigned: number; completed: number }) => ({
+            techId: t.id,
+            techName: t.name,
+            jobsToday: t.assigned || 1,
+            hoursWorked: 0,
+            jobsCompleted: t.completed || 0,
+          })),
+          recentActivity: (d.recentActivity ?? []).map((a: { id: string; text: string; timestamp: string; type: string }) => ({
+            id: a.id,
+            type: a.type === "completed" ? "job_completed" : "job_created",
+            description: a.text,
+            timestamp: a.timestamp,
+          })),
+        })
+      );
+  }, [companyId]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("subscribed") === "true") {
+      setToastVisible(true);
+      const timer = setTimeout(() => {
+        setToastVisible(false);
+        router.replace("/dashboard");
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [router]);
+
+  const m = useMemo(() => metrics ?? mockMetrics, [metrics]);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -61,23 +111,22 @@ export default function DashboardPage() {
           <p className="text-xs font-mono-label text-[rgba(248,248,250,0.38)] uppercase tracking-wider mb-1">
             {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
           </p>
-          <h2 className="font-heading font-bold text-2xl text-[#F8F8FA]">Good morning 👋</h2>
+          <h2 className="font-heading font-bold text-2xl text-[#F8F8FA]">Good morning</h2>
         </div>
         <Link href="/dispatch">
-          <Button size="md">⚡ AI Dispatch</Button>
+          <Button size="md">Run AI Dispatch</Button>
         </Link>
       </div>
 
       {/* Quick Actions */}
       <div className="grid grid-cols-3 gap-3">
-        {[
-          { href: "/jobs/new",      emoji: "🔧", label: "New Job" },
-          { href: "/customers/new", emoji: "👤", label: "Add Customer" },
-          { href: "/dispatch",      emoji: "🗺️", label: "Dispatch" },
-        ].map(({ href, emoji, label }) => (
+          {[
+            { href: "/jobs/new", label: "New Job" },
+            { href: "/customers/new", label: "Add Customer" },
+            { href: "/dispatch", label: "Dispatch" },
+          ].map(({ href, label }) => (
           <Link key={href} href={href}>
             <Card hover padding="sm" className="text-center py-4">
-              <div className="text-2xl mb-1.5">{emoji}</div>
               <p className="text-xs font-medium text-[rgba(248,248,250,0.65)]">{label}</p>
             </Card>
           </Link>
@@ -168,7 +217,7 @@ export default function DashboardPage() {
                 key={item.id}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-[10px] hover:bg-white/[0.03] transition-colors"
               >
-                <span className="text-base w-6 flex-shrink-0">{cfg.emoji}</span>
+                <span className="text-base w-6 flex-shrink-0">•</span>
                 <p className="flex-1 text-sm text-[rgba(248,248,250,0.65)] min-w-0 truncate">{item.description}</p>
                 <span className="text-xs text-[rgba(248,248,250,0.28)] flex-shrink-0 font-mono-label">
                   {formatRelative(item.timestamp)}
@@ -178,6 +227,16 @@ export default function DashboardPage() {
           })}
         </div>
       </Card>
+      {toastVisible ? (
+        <div
+          className="fixed bottom-6 right-6 rounded-[14px] px-5 py-4"
+          style={{ background: "var(--bg-elevated)", border: "1px solid var(--green)" }}
+        >
+          <p className="text-sm text-[var(--text-primary)]">
+            Welcome to VORTT! Your 14-day free trial has started.
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 }

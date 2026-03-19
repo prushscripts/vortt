@@ -10,7 +10,12 @@ export interface Company {
   phone?: string;
   address?: string;
   stripeId?: string;
+  ownerAuthId?: string;
   planTier: string;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  plan?: string;
+  subscriptionStatus?: string;
   createdAt: string;
 }
 

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Phone, MapPin, Wrench, CheckCircle, Plus } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { formatPhone } from "@/lib/utils/format";
+import { useCompanyId } from "@/hooks/useCompanyId";
 import type { Tech } from "@/types";
 
 const mockTechs: Tech[] = [
@@ -21,7 +22,15 @@ const skillLabels: Record<string, string> = {
 };
 
 export default function TechsPage() {
-  const [techs] = useState(mockTechs);
+  const { companyId } = useCompanyId();
+  const [techs, setTechs] = useState<Tech[]>(mockTechs);
+
+  useEffect(() => {
+    if (!companyId) return;
+    fetch(`/api/techs?companyId=${companyId}`)
+      .then((r) => r.json())
+      .then((d) => setTechs(Array.isArray(d) ? d : []));
+  }, [companyId]);
 
   return (
     <div className="space-y-5">

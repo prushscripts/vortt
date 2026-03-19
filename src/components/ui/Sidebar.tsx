@@ -7,16 +7,43 @@ import { cn } from "@/lib/utils/cn";
 import { createClient } from "@/lib/supabase/client";
 
 const navItems = [
-  { href: "/dashboard",  label: "Dashboard",  emoji: "⚡" },
-  { href: "/phases",     label: "Phases",     emoji: "🧭" },
-  { href: "/dispatch",   label: "Dispatch",   emoji: "🗺️" },
-  { href: "/jobs",       label: "Jobs",       emoji: "🔧" },
-  { href: "/customers",  label: "Customers",  emoji: "👥" },
-  { href: "/contracts",  label: "Contracts",  emoji: "📋" },
-  { href: "/inventory",  label: "Inventory",  emoji: "📦" },
-  { href: "/invoices",   label: "Invoices",   emoji: "💰" },
-  { href: "/techs",      label: "Techs",      emoji: "🧑‍🔧" },
+  { href: "/dashboard",  label: "Dashboard",  icon: "dashboard" },
+  { href: "/phases",     label: "Phases",     icon: "phases" },
+  { href: "/dispatch",   label: "Dispatch",   icon: "dispatch" },
+  { href: "/jobs",       label: "Jobs",       icon: "jobs" },
+  { href: "/customers",  label: "Customers",  icon: "customers" },
+  { href: "/contracts",  label: "Contracts",  icon: "contracts" },
+  { href: "/inventory",  label: "Inventory",  icon: "inventory" },
+  { href: "/invoices",   label: "Invoices",   icon: "invoices" },
+  { href: "/techs",      label: "Techs",      icon: "techs" },
 ];
+
+function NavGlyph({ type }: { type: string }) {
+  const cls = "h-5 w-5";
+  const props = { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.5, className: cls };
+  switch (type) {
+    case "dashboard":
+      return <svg {...props}><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>;
+    case "phases":
+      return <svg {...props}><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>;
+    case "dispatch":
+      return <svg {...props}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>;
+    case "jobs":
+      return <svg {...props}><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" /></svg>;
+    case "customers":
+      return <svg {...props}><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>;
+    case "contracts":
+      return <svg {...props}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>;
+    case "inventory":
+      return <svg {...props}><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /></svg>;
+    case "invoices":
+      return <svg {...props}><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg>;
+    case "techs":
+      return <svg {...props}><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" /></svg>;
+    default:
+      return <svg {...props}><circle cx="12" cy="12" r="10" /></svg>;
+  }
+}
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -55,36 +82,36 @@ export function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {navItems.map(({ href, label, emoji }) => {
+        {navItems.map(({ href, label, icon }) => {
           const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
           return (
             <Link
               key={href}
               href={href}
               className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150 min-h-[40px] group",
+                "group flex min-h-[44px] items-center gap-[10px] rounded-[10px] px-3 transition-all duration-150",
                 active
-                  ? "nav-active"
-                  : "hover:bg-white/[0.04]"
+                  ? "bg-[var(--orange-dim)] text-[var(--text-primary)] border-l-2 border-l-[var(--orange)]"
+                  : "text-[var(--text-secondary)] hover:bg-white/[0.04]"
               )}
             >
-              <span className="text-base leading-none w-5 flex-shrink-0 text-center">
-                {emoji}
+              <span className={cn("flex-shrink-0", active ? "text-[var(--orange)]" : "text-[var(--text-secondary)]")}>
+                <NavGlyph type={icon} />
               </span>
               <span
                 className={cn(
-                  "text-sm font-medium transition-colors",
+                  "text-sm font-medium transition-colors leading-none",
                   active
-                    ? "text-[#F8F8FA]"
-                    : "text-[rgba(248,248,250,0.5)] group-hover:text-[rgba(248,248,250,0.8)]"
+                    ? "text-[var(--text-primary)]"
+                    : "text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]"
                 )}
               >
                 {label}
               </span>
               {active && (
                 <div
-                  className="ml-auto w-1 h-1 rounded-full flex-shrink-0"
-                  style={{ background: "#FF6B2B" }}
+                  className="ml-auto h-[6px] w-[6px] flex-shrink-0 rounded-full pulse-dot"
+                  style={{ background: "var(--orange)" }}
                 />
               )}
             </Link>
@@ -119,10 +146,10 @@ export function Sidebar() {
 
 /* Mobile bottom nav */
 const mobileNavItems = [
-  { href: "/dispatch",  label: "Dispatch",  emoji: "🗺️" },
-  { href: "/jobs",      label: "Jobs",      emoji: "🔧" },
-  { href: "/customers", label: "Customers", emoji: "👥" },
-  { href: "/dashboard", label: "More",      emoji: "⚡" },
+  { href: "/dispatch",  label: "Dispatch",  icon: "dispatch" },
+  { href: "/jobs",      label: "Jobs",      icon: "jobs" },
+  { href: "/customers", label: "Customers", icon: "customers" },
+  { href: "/dashboard", label: "More",      icon: "dashboard" },
 ];
 
 export function BottomNav() {
@@ -137,7 +164,7 @@ export function BottomNav() {
       }}
     >
       <div className="flex items-stretch">
-        {mobileNavItems.map(({ href, label, emoji }) => {
+        {mobileNavItems.map(({ href, label, icon }) => {
           const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
           return (
             <Link
@@ -145,7 +172,9 @@ export function BottomNav() {
               href={href}
               className="flex-1 flex flex-col items-center justify-center py-3 gap-1 min-h-[60px] transition-colors"
             >
-              <span className="text-xl leading-none">{emoji}</span>
+              <span className={cn("leading-none", active ? "text-[var(--orange)]" : "text-[var(--text-secondary)]")}>
+                <NavGlyph type={icon} />
+              </span>
               <span
                 className={cn(
                   "text-[10px] font-medium font-mono-label transition-colors",

@@ -1,13 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Building2, Phone, MapPin, CreditCard, Bell, Shield, Save } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { useCompanyId } from "@/hooks/useCompanyId";
 
 export default function SettingsPage() {
+  const { companyId } = useCompanyId();
   const [saved, setSaved] = useState(false);
+  const [plan, setPlan] = useState("starter");
+  const [status, setStatus] = useState("trialing");
+  const [nextBillingDate] = useState<string>(new Date(Date.now() + 1000 * 60 * 60 * 24 * 14).toLocaleDateString());
+
+  useEffect(() => {
+    fetch("/api/company/current")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d?.plan) setPlan(d.plan);
+        if (d?.subscriptionStatus) setStatus(d.subscriptionStatus);
+      });
+  }, []);
 
   const handleSave = () => {
     setSaved(true);
@@ -78,17 +92,39 @@ export default function SettingsPage() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <CreditCard className="w-5 h-5 text-vortt-orange" />
-            <CardTitle>Plan</CardTitle>
+            <CardTitle>Billing</CardTitle>
           </div>
-          <span className="text-xs font-semibold text-vortt-green bg-green-100 px-2 py-0.5 rounded-full">Starter</span>
+          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+            status === "active"
+              ? "text-vortt-green bg-green-100"
+              : status === "trialing"
+                ? "text-vortt-orange bg-orange-100"
+                : "text-vortt-red bg-red-100"
+          }`}>
+            {status}
+          </span>
         </CardHeader>
         <div className="space-y-3">
           <div className="p-4 bg-vortt-mist rounded-xl border border-zinc-200">
-            <p className="font-heading font-semibold text-vortt-charcoal">Starter Plan</p>
-            <p className="text-sm text-zinc-500 mt-0.5">Up to 3 techs · Core dispatch · AI dispatch suggestions</p>
-            <p className="font-heading font-bold text-2xl text-vortt-charcoal mt-2">$99<span className="text-sm font-normal text-zinc-400">/mo</span></p>
+            <p className="font-heading font-semibold text-vortt-charcoal">{plan.toUpperCase()} Plan</p>
+            <p className="text-sm text-zinc-500 mt-0.5">Next billing date: {nextBillingDate}</p>
           </div>
-          <Button variant="secondary" fullWidth>Upgrade to Growth →</Button>
+          <Button
+            variant="secondary"
+            fullWidth
+            onClick={async () => {
+              if (!companyId) return;
+              const res = await fetch("/api/stripe/portal", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ companyId }),
+              });
+              const data = await res.json();
+              if (data.url) window.location.href = data.url;
+            }}
+          >
+            Manage Billing
+          </Button>
         </div>
       </Card>
 
