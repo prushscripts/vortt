@@ -14,8 +14,8 @@ const schema = z.object({
   supplier: z.string().optional(),
   sellPrice: z.number().optional(),
   unitCost: z.number().optional(),
-  stockQty: z.number().default(0),
-  minStock: z.number().default(1),
+  stockQty: z.number(),
+  minStock: z.number(),
   location: z.string().optional(),
   notes: z.string().optional(),
 });

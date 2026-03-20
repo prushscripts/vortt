@@ -36,9 +36,9 @@ export default function SettingsPage() {
         <p className="text-zinc-500 text-sm">Manage your company account</p>
       </div>
 
-      <div style={{
+      <div className="settings-grid" style={{
         display: 'grid',
-        gridTemplateColumns: window.innerWidth >= 768 ? '1fr 380px' : '1fr',
+        gridTemplateColumns: '1fr',
         gap: 20,
         alignItems: 'start',
       }}>

@@ -9,12 +9,13 @@ setlocal enabledelayedexpansion
 title VORTT Deploy
 
 echo.
-echo  ================================
-echo   VORTT Deploy
-echo  ================================
+echo ========================================
+echo   VORTT Deployment Script
+echo ========================================
 echo.
 
 :: ── Check git is initialized ────────────────────────────────
+set COMMIT_MSG=feat: major UX redesign - login loader, settings 2-col, form redesigns, new contract/inventory pages, inline buttons, dispatch delete
 git rev-parse --git-dir >nul 2>&1
 if errorlevel 1 (
     echo  [SETUP] Git not initialized. Setting up now...
