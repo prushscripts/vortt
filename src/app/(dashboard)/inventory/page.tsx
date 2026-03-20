@@ -7,31 +7,31 @@ import { Button } from "@/components/ui/Button";
 import { formatCurrency } from "@/lib/utils/format";
 import type { Part } from "@/types";
 
-const mockParts: Part[] = [
-  { id: "p1", companyId: "c1", name: "Capacitor 35/5 MFD", partNumber: "CAP-35-5", supplier: "Johnstone Supply", unitCost: 12, sellPrice: 45, stockQty: 8, minStock: 3, createdAt: new Date().toISOString() },
-  { id: "p2", companyId: "c1", name: "Contactor 30A", partNumber: "CON-30A", supplier: "Johnstone Supply", unitCost: 18, sellPrice: 65, stockQty: 1, minStock: 2, createdAt: new Date().toISOString() },
-  { id: "p3", companyId: "c1", name: "Filter 16x25x1", partNumber: "FLT-16251", supplier: "Ferguson HVAC", unitCost: 4, sellPrice: 12, stockQty: 24, minStock: 10, createdAt: new Date().toISOString() },
-  { id: "p4", companyId: "c1", name: "Thermostat Honeywell T6", partNumber: "TH-T6-PRO", supplier: "HD Supply", unitCost: 55, sellPrice: 149, stockQty: 3, minStock: 2, createdAt: new Date().toISOString() },
-  { id: "p5", companyId: "c1", name: "Blower Motor 1/3 HP", partNumber: "BLW-13HP", supplier: "Johnstone Supply", unitCost: 85, sellPrice: 220, stockQty: 0, minStock: 1, createdAt: new Date().toISOString() },
-  { id: "p6", companyId: "c1", name: "R-410A Refrigerant 25lb", partNumber: "R410A-25", supplier: "Ferguson HVAC", unitCost: 140, sellPrice: 280, stockQty: 2, minStock: 2, createdAt: new Date().toISOString() },
-];
 
 export default function InventoryPage() {
-  const [parts, setParts] = useState<Part[]>(mockParts);
+  const [parts, setParts] = useState<Part[]>([]);
+  const [dataLoaded, setDataLoaded] = useState(false);
   const [filter, setFilter] = useState<"all" | "low" | "out">("all");
 
   useEffect(() => {
     fetch("/api/auth/company", { method: "POST" })
       .then((r) => r.json())
       .then(({ companyId: cid }: { companyId?: string }) => {
-        if (!cid) return;
+        if (!cid) {
+          setDataLoaded(true);
+          return;
+        }
         return fetch(`/api/inventory?companyId=${cid}`)
           .then((r) => r.json())
           .then((d: Part[]) => {
-            if (Array.isArray(d) && d.length > 0) setParts(d);
+            const list = Array.isArray(d) ? d : [];
+            setParts(list);
+            setDataLoaded(true);
           });
       })
-      .catch(() => {});
+      .catch(() => {
+        setDataLoaded(true);
+      });
   }, []);
 
   const lowStock = parts.filter(p => p.stockQty > 0 && p.stockQty <= p.minStock);
@@ -92,7 +92,60 @@ export default function InventoryPage() {
 
       {/* Parts Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {filtered.map((part) => {
+        {!dataLoaded &&
+          [0, 1, 2, 3].map((i) => (
+            <div key={i} style={{
+              background: "var(--bg-surface)",
+              border: "1px solid var(--bg-border)",
+              borderRadius: 14,
+              padding: 20,
+              opacity: 1 - i * 0.15,
+            }}>
+              <div style={{
+                width: "40%", height: 11, background: "var(--bg-elevated)",
+                borderRadius: 6, marginBottom: 12,
+                animation: "pulse 1.5s ease-in-out infinite"
+              }} />
+              <div style={{
+                width: "60%", height: 18, background: "var(--bg-elevated)",
+                borderRadius: 6,
+                animation: "pulse 1.5s ease-in-out infinite",
+                animationDelay: "0.1s"
+              }} />
+            </div>
+          ))}
+        {dataLoaded && filtered.length === 0 && (
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            justifyContent: 'center', padding: '80px 20px', gap: 16, textAlign: 'center',
+            gridColumn: '1 / -1'
+          }}>
+            <div style={{
+              width: 64, height: 64, borderRadius: 20,
+              background: 'rgba(255,107,43,0.08)', border: '1px solid rgba(255,107,43,0.15)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF6B2B" strokeWidth="1.5" strokeLinecap="round">
+                <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+              </svg>
+            </div>
+            <div>
+              <p style={{fontFamily:'Space Grotesk', fontWeight:700, fontSize:18, color:'var(--text-primary)', margin:0}}>
+                No parts tracked yet
+              </p>
+              <p style={{color:'var(--text-secondary)', fontSize:14, marginTop:6, margin:'6px 0 0'}}>
+                Add parts to track stock levels across your vans
+              </p>
+            </div>
+            <a href="#" style={{
+              background: 'var(--orange)', color: 'white', borderRadius: 10,
+              padding: '10px 24px', fontFamily: 'Space Grotesk', fontWeight: 600,
+              fontSize: 14, textDecoration: 'none', marginTop: 8,
+              boxShadow: '0 4px 16px rgba(255,107,43,0.3)'
+            }}>+ Add Part</a>
+          </div>
+        )}
+        {dataLoaded && filtered.map((part) => {
           const isOut = part.stockQty === 0;
           const isLow = part.stockQty > 0 && part.stockQty <= part.minStock;
           return (

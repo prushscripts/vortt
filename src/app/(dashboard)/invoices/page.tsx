@@ -25,20 +25,20 @@ const statusConfig: Record<Invoice["status"], { label: string; color: string; bg
   overdue: { label: "Overdue", color: "text-vortt-red", bg: "bg-red-100" },
 };
 
-const mockInvoices: Invoice[] = [
-  { id: "inv-demo-1", invoiceNo: "INV-1042", customerName: "Maria Gonzalez", customerPhone: "5121234567", jobType: "HVAC Service", totalAmount: 850, status: "sent", createdAt: new Date().toISOString(), dueDate: new Date(Date.now() + 86400000 * 14).toISOString() },
-  { id: "inv-demo-2", invoiceNo: "INV-1041", customerName: "James Whitfield", customerPhone: "5129876543", jobType: "HVAC Service", totalAmount: 1295, status: "paid", createdAt: new Date(Date.now() - 86400000 * 5).toISOString(), dueDate: new Date().toISOString() },
-];
 
 export default function InvoicesPage() {
-  const [invoices, setInvoices] = useState<Invoice[]>(mockInvoices);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [dataLoaded, setDataLoaded] = useState(false);
   const [filter, setFilter] = useState<Invoice["status"] | "all">("all");
 
   useEffect(() => {
     fetch("/api/auth/company", { method: "POST" })
       .then((r) => r.json())
       .then(({ companyId: cid }: { companyId?: string }) => {
-        if (!cid) return;
+        if (!cid) {
+          setDataLoaded(true);
+          return;
+        }
         return fetch(`/api/invoices?companyId=${cid}`)
           .then((r) => r.json())
           .then((rows) => {
@@ -53,10 +53,13 @@ export default function InvoicesPage() {
               createdAt: r.createdAt,
               dueDate: r.dueDate,
             }));
-            if (Array.isArray(mapped) && mapped.length > 0) setInvoices(mapped);
+            setInvoices(mapped);
+            setDataLoaded(true);
           });
       })
-      .catch(() => {});
+      .catch(() => {
+        setDataLoaded(true);
+      });
   }, []);
 
   const totalPaid = invoices.filter(i => i.status === "paid").reduce((s, i) => s + i.totalAmount, 0);
@@ -125,7 +128,54 @@ export default function InvoicesPage() {
 
       {/* Invoice List */}
       <div className="space-y-3">
-        {filtered.map((invoice) => {
+        {!dataLoaded &&
+          [0, 1, 2].map((i) => (
+            <div key={i} style={{
+              background: "var(--bg-surface)",
+              border: "1px solid var(--bg-border)",
+              borderRadius: 14,
+              padding: 20,
+              opacity: 1 - i * 0.2,
+            }}>
+              <div style={{
+                width: "35%", height: 11, background: "var(--bg-elevated)",
+                borderRadius: 6, marginBottom: 12,
+                animation: "pulse 1.5s ease-in-out infinite"
+              }} />
+              <div style={{
+                width: "60%", height: 18, background: "var(--bg-elevated)",
+                borderRadius: 6, marginBottom: 10,
+                animation: "pulse 1.5s ease-in-out infinite",
+                animationDelay: "0.1s"
+              }} />
+            </div>
+          ))}
+        {dataLoaded && filtered.length === 0 && (
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            justifyContent: 'center', padding: '80px 20px', gap: 16, textAlign: 'center'
+          }}>
+            <div style={{
+              width: 64, height: 64, borderRadius: 20,
+              background: 'rgba(255,107,43,0.08)', border: '1px solid rgba(255,107,43,0.15)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF6B2B" strokeWidth="1.5" strokeLinecap="round">
+                <rect x="2" y="5" width="20" height="14" rx="2"/>
+                <line x1="2" y1="10" x2="22" y2="10"/>
+              </svg>
+            </div>
+            <div>
+              <p style={{fontFamily:'Space Grotesk', fontWeight:700, fontSize:18, color:'var(--text-primary)', margin:0}}>
+                No invoices yet
+              </p>
+              <p style={{color:'var(--text-secondary)', fontSize:14, marginTop:6, margin:'6px 0 0'}}>
+                Invoices are created automatically from completed jobs
+              </p>
+            </div>
+          </div>
+        )}
+        {dataLoaded && filtered.map((invoice) => {
           const status = statusConfig[invoice.status];
           return (
             <Card key={invoice.id} hover>

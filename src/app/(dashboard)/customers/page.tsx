@@ -8,16 +8,11 @@ import { Button } from "@/components/ui/Button";
 import { formatPhone } from "@/lib/utils/format";
 import type { Customer } from "@/types";
 
-const mockCustomers: Customer[] = [
-  { id: "1", companyId: "c1", firstName: "Maria", lastName: "Gonzalez", phone: "5121234567", email: "maria@example.com", address: "1420 Oak Street, Austin TX 78701", equipment: [{ type: "Split AC", brand: "Carrier", model: "24ACC636A", installedYear: 2019 }], createdAt: new Date().toISOString() },
-  { id: "2", companyId: "c1", firstName: "James", lastName: "Whitfield", phone: "5129876543", address: "892 Riverside Dr, Austin TX 78704", createdAt: new Date().toISOString() },
-  { id: "3", companyId: "c1", firstName: "Sandra", lastName: "Kim", phone: "5122345678", address: "3341 Burnet Rd, Austin TX 78756", equipment: [{ type: "Central AC", brand: "Lennox", model: "XC21", installedYear: 2018 }], createdAt: new Date().toISOString() },
-];
 
 export default function CustomersPage() {
   const [search, setSearch] = useState("");
-  const [customers, setCustomers] = useState<Customer[]>(mockCustomers);
-  const [loading, setLoading] = useState(false);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [dataLoaded, setDataLoaded] = useState(false);
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [resolvedCompanyId, setResolvedCompanyId] = useState<string | null>(null);
 
@@ -30,14 +25,19 @@ export default function CustomersPage() {
     fetch("/api/auth/company", { method: "POST" })
       .then((r) => r.json())
       .then((d: { companyId?: string }) => {
-        if (d.companyId) setResolvedCompanyId(d.companyId);
+        if (d.companyId) {
+          setResolvedCompanyId(d.companyId);
+        } else {
+          setDataLoaded(true);
+        }
       })
-      .catch(() => {});
+      .catch(() => {
+        setDataLoaded(true);
+      });
   }, []);
 
   useEffect(() => {
     if (!resolvedCompanyId) return;
-    setLoading(true);
     const query = new URLSearchParams({
       companyId: resolvedCompanyId,
       ...(debouncedSearch ? { search: debouncedSearch } : {}),
@@ -45,10 +45,13 @@ export default function CustomersPage() {
     fetch(`/api/customers?${query}`)
       .then((r) => r.json())
       .then((d: Customer[] | { error?: string }) => {
-        if (Array.isArray(d) && d.length > 0) setCustomers(d);
+        const list = Array.isArray(d) ? d : [];
+        setCustomers(list);
+        setDataLoaded(true);
       })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .catch(() => {
+        setDataLoaded(true);
+      });
   }, [resolvedCompanyId, debouncedSearch]);
 
   const filtered = useMemo(() => customers, [customers]);
@@ -82,22 +85,67 @@ export default function CustomersPage() {
 
       {/* Customer List */}
       <div className="space-y-3">
-        {loading &&
-          [1, 2, 3].map((i) => (
-            <div key={i} className="rounded-[14px] border border-[var(--bg-border)] bg-[var(--bg-surface)] p-4 animate-pulse">
-              <div className="h-4 w-1/3 rounded bg-[var(--bg-elevated)] mb-2" />
-              <div className="h-3 w-1/2 rounded bg-[var(--bg-elevated)]" />
+        {!dataLoaded &&
+          [0, 1, 2].map((i) => (
+            <div key={i} style={{
+              background: "var(--bg-surface)",
+              border: "1px solid var(--bg-border)",
+              borderRadius: 14,
+              padding: 20,
+              marginBottom: 10,
+              opacity: 1 - i * 0.2,
+            }}>
+              <div style={{
+                width: "35%", height: 11, background: "var(--bg-elevated)",
+                borderRadius: 6, marginBottom: 12,
+                animation: "pulse 1.5s ease-in-out infinite"
+              }} />
+              <div style={{
+                width: "60%", height: 18, background: "var(--bg-elevated)",
+                borderRadius: 6, marginBottom: 10,
+                animation: "pulse 1.5s ease-in-out infinite",
+                animationDelay: "0.1s"
+              }} />
+              <div style={{
+                width: "45%", height: 11, background: "var(--bg-elevated)",
+                borderRadius: 6,
+                animation: "pulse 1.5s ease-in-out infinite",
+                animationDelay: "0.2s"
+              }} />
             </div>
           ))}
-        {filtered.length === 0 && (
-          <Card className="text-center py-12">
-            <p className="text-[var(--text-secondary)] text-sm">No customers found</p>
-            <Link href="/customers/new">
-              <Button size="sm" className="mt-4">Add your first customer</Button>
-            </Link>
-          </Card>
+        {dataLoaded && filtered.length === 0 && (
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            justifyContent: 'center', padding: '80px 20px', gap: 16, textAlign: 'center'
+          }}>
+            <div style={{
+              width: 64, height: 64, borderRadius: 20,
+              background: 'rgba(255,107,43,0.08)', border: '1px solid rgba(255,107,43,0.15)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF6B2B" strokeWidth="1.5" strokeLinecap="round">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div>
+              <p style={{fontFamily:'Space Grotesk', fontWeight:700, fontSize:18, color:'var(--text-primary)', margin:0}}>
+                No customers yet
+              </p>
+              <p style={{color:'var(--text-secondary)', fontSize:14, marginTop:6, margin:'6px 0 0'}}>
+                Add your first customer to get started
+              </p>
+            </div>
+            <a href="/customers/new" style={{
+              background: 'var(--orange)', color: 'white', borderRadius: 10,
+              padding: '10px 24px', fontFamily: 'Space Grotesk', fontWeight: 600,
+              fontSize: 14, textDecoration: 'none', marginTop: 8,
+              boxShadow: '0 4px 16px rgba(255,107,43,0.3)'
+            }}>+ Add Customer</a>
+          </div>
         )}
-        {filtered.map((customer) => (
+        {dataLoaded && filtered.map((customer) => (
           <Link key={customer.id} href={`/customers/${customer.id}`}>
             <Card hover className="cursor-pointer">
               <div className="flex items-center gap-3">

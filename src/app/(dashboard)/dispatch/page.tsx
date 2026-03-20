@@ -67,8 +67,9 @@ interface SuggestionCard {
 }
 
 export default function DispatchPage() {
-  const [techs, setTechs] = useState<Tech[]>(mockTechs);
-  const [jobs, setJobs] = useState<Job[]>(mockJobs);
+  const [techs, setTechs] = useState<Tech[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [dataLoaded, setDataLoaded] = useState(false);
   const [suggestions, setSuggestions] = useState<SuggestionCard[]>([]);
   const [loadingAI, setLoadingAI] = useState(false);
   const [assignments, setAssignments] = useState<Map<string, string>>(new Map()); // jobId -> techId
@@ -79,18 +80,24 @@ export default function DispatchPage() {
     fetch("/api/auth/company", { method: "POST" })
       .then((r) => r.json())
       .then(({ companyId: cid }: { companyId?: string }) => {
-        if (!cid) return;
+        if (!cid) {
+          setDataLoaded(true);
+          return;
+        }
         return Promise.all([
           fetch(`/api/jobs?companyId=${cid}`).then((r) => r.json()),
           fetch(`/api/techs?companyId=${cid}`).then((r) => r.json()),
         ]).then(([jobsRes, techsRes]) => {
           const jobList = Array.isArray(jobsRes) ? jobsRes : [];
           const techList = Array.isArray(techsRes) ? techsRes : [];
-          if (jobList.length > 0) setJobs(jobList);
-          if (techList.length > 0) setTechs(techList);
+          setJobs(jobList);
+          setTechs(techList);
+          setDataLoaded(true);
         });
       })
-      .catch(() => {});
+      .catch(() => {
+        setDataLoaded(true);
+      });
   }, []);
 
   const unassignedJobs = jobs.filter((j) => !j.techId && !assignments.has(j.id));
@@ -299,7 +306,45 @@ export default function DispatchPage() {
         )}
 
         {/* Job Groups */}
-        {statusGroups.map(({ label, jobs, color }) => (
+        {!dataLoaded && (
+          <div className="space-y-2">
+            {[0, 1, 2].map((i) => (
+              <div key={i} style={{
+                background: "var(--bg-surface)",
+                border: "1px solid var(--bg-border)",
+                borderRadius: 14,
+                padding: 20,
+                opacity: 1 - i * 0.2,
+              }}>
+                <div style={{
+                  width: "35%", height: 11, background: "var(--bg-elevated)",
+                  borderRadius: 6, marginBottom: 12,
+                  animation: "pulse 1.5s ease-in-out infinite"
+                }} />
+                <div style={{
+                  width: "60%", height: 18, background: "var(--bg-elevated)",
+                  borderRadius: 6, marginBottom: 10,
+                  animation: "pulse 1.5s ease-in-out infinite",
+                  animationDelay: "0.1s"
+                }} />
+              </div>
+            ))}
+          </div>
+        )}
+        {dataLoaded && unassignedJobs.length === 0 && jobs.filter(j => assignments.has(j.id)).length === 0 && assignedJobs.filter(j => j.status === "in_progress").length === 0 && (
+          <div style={{
+            padding: '40px 20px', textAlign: 'center',
+            border: '1px dashed var(--bg-border)', borderRadius: 14
+          }}>
+            <p style={{color: 'var(--text-secondary)', fontSize: 14, margin: 0}}>
+              No jobs today
+            </p>
+            <p style={{color: 'var(--text-muted)', fontSize: 12, marginTop: 4}}>
+              All jobs are assigned or no jobs scheduled
+            </p>
+          </div>
+        )}
+        {dataLoaded && statusGroups.map(({ label, jobs, color }) => (
           jobs.length > 0 && (
             <div key={label}>
               <p className={`text-xs font-semibold uppercase tracking-wide mb-2 ${color}`}>

@@ -196,6 +196,7 @@ function DashboardBody({ m }: { m: DashboardMetrics }) {
 
 function DashboardPageInner() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [metricsLoaded, setMetricsLoaded] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const router = useRouter();
 
@@ -204,13 +205,19 @@ function DashboardPageInner() {
     fetch("/api/auth/company", { method: "POST" })
       .then((r) => r.json())
       .then((d) => {
-        if (cancelled || !d?.companyId) return Promise.resolve(null);
+        if (cancelled || !d?.companyId) {
+          setMetricsLoaded(true);
+          return Promise.resolve(null);
+        }
         return fetch(`/api/dashboard/metrics?companyId=${d.companyId}`).then((r) => r.json());
       })
       .then((d: unknown) => {
         if (cancelled || !d || typeof d !== "object") return;
         const row = d as Record<string, unknown>;
-        if ("error" in row && row.error) return;
+        if ("error" in row && row.error) {
+          setMetricsLoaded(true);
+          return;
+        }
         setMetrics({
           todayJobs: (row.jobsToday as number) ?? 0,
           assignedJobs: ((row.dispatchStatus as { assigned?: number })?.assigned) ?? 0,
@@ -234,8 +241,11 @@ function DashboardPageInner() {
             timestamp: a.timestamp,
           })),
         });
+        setMetricsLoaded(true);
       })
-      .catch(() => {});
+      .catch(() => {
+        setMetricsLoaded(true);
+      });
     return () => {
       cancelled = true;
     };
@@ -252,11 +262,61 @@ function DashboardPageInner() {
     }
   }, [router]);
 
-  const m = useMemo(() => metrics ?? mockMetrics, [metrics]);
+  const m = useMemo(() => {
+    if (metricsLoaded && metrics) return metrics;
+    if (metricsLoaded && !metrics) {
+      return {
+        todayJobs: 0,
+        assignedJobs: 0,
+        unassignedJobs: 0,
+        revenueThisMonth: 0,
+        revenueCollected: 0,
+        revenueOutstanding: 0,
+        contractsExpiringSoon: 0,
+        contractsExpiringValue: 0,
+        techUtilization: [],
+        recentActivity: [],
+      };
+    }
+    return mockMetrics;
+  }, [metrics, metricsLoaded]);
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <DashboardBody m={m} />
+      {!metricsLoaded ? (
+        <div className="space-y-6">
+          {[0, 1, 2].map((i) => (
+            <div key={i} style={{
+              background: "var(--bg-surface)",
+              border: "1px solid var(--bg-border)",
+              borderRadius: 14,
+              padding: 20,
+              marginBottom: 10,
+              opacity: 1 - i * 0.15,
+            }}>
+              <div style={{
+                width: "35%", height: 11, background: "var(--bg-elevated)",
+                borderRadius: 6, marginBottom: 12,
+                animation: "pulse 1.5s ease-in-out infinite"
+              }} />
+              <div style={{
+                width: "60%", height: 18, background: "var(--bg-elevated)",
+                borderRadius: 6, marginBottom: 10,
+                animation: "pulse 1.5s ease-in-out infinite",
+                animationDelay: "0.1s"
+              }} />
+              <div style={{
+                width: "45%", height: 11, background: "var(--bg-elevated)",
+                borderRadius: 6,
+                animation: "pulse 1.5s ease-in-out infinite",
+                animationDelay: "0.2s"
+              }} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <DashboardBody m={m} />
+      )}
       {toastVisible ? (
         <div
           className="fixed bottom-6 right-6 rounded-[14px] px-5 py-4"

@@ -7,12 +7,6 @@ import { Button } from "@/components/ui/Button";
 import { formatPhone } from "@/lib/utils/format";
 import type { Tech } from "@/types";
 
-const mockTechs: Tech[] = [
-  { id: "t1", companyId: "c1", name: "Jake Torres", phone: "5120001111", email: "jake@smithhvac.com", skills: ["refrigerant_certified", "electrical", "commercial"], isActive: true, lat: 30.2729, lng: -97.7444, lastSeen: new Date().toISOString(), createdAt: new Date().toISOString() },
-  { id: "t2", companyId: "c1", name: "Marcus Webb", phone: "5120002222", email: "marcus@smithhvac.com", skills: ["electrical"], isActive: true, lat: 30.2951, lng: -97.7532, lastSeen: new Date(Date.now() - 1000 * 60 * 15).toISOString(), createdAt: new Date().toISOString() },
-  { id: "t3", companyId: "c1", name: "Devon Hall", phone: "5120003333", skills: ["refrigerant_certified"], isActive: true, lastSeen: new Date(Date.now() - 1000 * 60 * 30).toISOString(), createdAt: new Date().toISOString() },
-  { id: "t4", companyId: "c1", name: "Riley Chen", phone: "5120004444", email: "riley@smithhvac.com", skills: ["electrical", "commercial"], isActive: false, createdAt: new Date().toISOString() },
-];
 
 const skillLabels: Record<string, string> = {
   refrigerant_certified: "Refrigerant Cert.",
@@ -21,20 +15,28 @@ const skillLabels: Record<string, string> = {
 };
 
 export default function TechsPage() {
-  const [techs, setTechs] = useState<Tech[]>(mockTechs);
+  const [techs, setTechs] = useState<Tech[]>([]);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/company", { method: "POST" })
       .then((r) => r.json())
       .then(({ companyId: cid }: { companyId?: string }) => {
-        if (!cid) return;
+        if (!cid) {
+          setDataLoaded(true);
+          return;
+        }
         return fetch(`/api/techs?companyId=${cid}`)
           .then((r) => r.json())
           .then((d: Tech[]) => {
-            if (Array.isArray(d) && d.length > 0) setTechs(d);
+            const list = Array.isArray(d) ? d : [];
+            setTechs(list);
+            setDataLoaded(true);
           });
       })
-      .catch(() => {});
+      .catch(() => {
+        setDataLoaded(true);
+      });
   }, []);
 
   return (
@@ -51,7 +53,63 @@ export default function TechsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {techs.map((tech) => (
+        {!dataLoaded &&
+          [0, 1, 2, 3].map((i) => (
+            <div key={i} style={{
+              background: "var(--bg-surface)",
+              border: "1px solid var(--bg-border)",
+              borderRadius: 14,
+              padding: 20,
+              opacity: 1 - i * 0.15,
+            }}>
+              <div style={{
+                width: "40%", height: 11, background: "var(--bg-elevated)",
+                borderRadius: 6, marginBottom: 12,
+                animation: "pulse 1.5s ease-in-out infinite"
+              }} />
+              <div style={{
+                width: "60%", height: 18, background: "var(--bg-elevated)",
+                borderRadius: 6,
+                animation: "pulse 1.5s ease-in-out infinite",
+                animationDelay: "0.1s"
+              }} />
+            </div>
+          ))}
+        {dataLoaded && techs.length === 0 && (
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            justifyContent: 'center', padding: '80px 20px', gap: 16, textAlign: 'center',
+            gridColumn: '1 / -1'
+          }}>
+            <div style={{
+              width: 64, height: 64, borderRadius: 20,
+              background: 'rgba(255,107,43,0.08)', border: '1px solid rgba(255,107,43,0.15)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF6B2B" strokeWidth="1.5" strokeLinecap="round">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                <path d="M16 3.13a4 4 0 010 7.75"/>
+              </svg>
+            </div>
+            <div>
+              <p style={{fontFamily:'Space Grotesk', fontWeight:700, fontSize:18, color:'var(--text-primary)', margin:0}}>
+                No technicians added
+              </p>
+              <p style={{color:'var(--text-secondary)', fontSize:14, marginTop:6, margin:'6px 0 0'}}>
+                Add your techs to start assigning jobs
+              </p>
+            </div>
+            <a href="#" style={{
+              background: 'var(--orange)', color: 'white', borderRadius: 10,
+              padding: '10px 24px', fontFamily: 'Space Grotesk', fontWeight: 600,
+              fontSize: 14, textDecoration: 'none', marginTop: 8,
+              boxShadow: '0 4px 16px rgba(255,107,43,0.3)'
+            }}>+ Add Tech</a>
+          </div>
+        )}
+        {dataLoaded && techs.map((tech) => (
           <Card key={tech.id} hover>
             <div className="flex items-start gap-4">
               <div className="relative flex-shrink-0">

@@ -8,41 +8,6 @@ import { ContractBadge } from "@/components/ui/Badge";
 import { formatCurrency, formatDate, daysUntil } from "@/lib/utils/format";
 import type { MaintenanceContract } from "@/types";
 
-// Mock data — replace with API
-const mockContracts: MaintenanceContract[] = [
-  {
-    id: "con1", companyId: "c1", customerId: "1", tier: "premium", price: 599,
-    startDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 330).toISOString(),
-    renewalDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 35).toISOString(),
-    status: "expiring", autoRenew: false, outreachSent: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 330).toISOString(),
-    customer: { id: "1", companyId: "c1", firstName: "Maria", lastName: "Gonzalez", phone: "5121234567", email: "maria@example.com", address: "1420 Oak Street, Austin TX 78701", equipment: [{ type: "Split AC", brand: "Carrier", model: "24ACC636A", installedYear: 2019 }], createdAt: new Date().toISOString() },
-  },
-  {
-    id: "con2", companyId: "c1", customerId: "2", tier: "basic", price: 299,
-    startDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 340).toISOString(),
-    renewalDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 15).toISOString(),
-    status: "expiring", autoRenew: false, outreachSent: false,
-    createdAt: new Date().toISOString(),
-    customer: { id: "2", companyId: "c1", firstName: "James", lastName: "Whitfield", phone: "5129876543", address: "892 Riverside Dr, Austin TX 78704", createdAt: new Date().toISOString() },
-  },
-  {
-    id: "con3", companyId: "c1", customerId: "3", tier: "premium", price: 599,
-    startDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 200).toISOString(),
-    renewalDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 165).toISOString(),
-    status: "active", autoRenew: true, outreachSent: false,
-    createdAt: new Date().toISOString(),
-    customer: { id: "3", companyId: "c1", firstName: "Sandra", lastName: "Kim", phone: "5122345678", address: "3341 Burnet Rd, Austin TX 78756", equipment: [{ type: "Central AC", brand: "Lennox", model: "XC21", installedYear: 2018 }], createdAt: new Date().toISOString() },
-  },
-  {
-    id: "con4", companyId: "c1", customerId: "4", tier: "basic", price: 299,
-    startDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 355).toISOString(),
-    renewalDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
-    status: "expired", autoRenew: false, outreachSent: false,
-    createdAt: new Date().toISOString(),
-    customer: { id: "4", companyId: "c1", firstName: "Robert", lastName: "Chen", phone: "5123456789", address: "4210 South Lamar, Austin TX 78704", createdAt: new Date().toISOString() },
-  },
-];
 
 interface OutreachState {
   contractId: string;
@@ -52,7 +17,8 @@ interface OutreachState {
 }
 
 export default function ContractsPage() {
-  const [contracts, setContracts] = useState<MaintenanceContract[]>(mockContracts);
+  const [contracts, setContracts] = useState<MaintenanceContract[]>([]);
+  const [dataLoaded, setDataLoaded] = useState(false);
   const [outreach, setOutreach] = useState<OutreachState | null>(null);
   const [sendingAll, setSendingAll] = useState(false);
 
@@ -64,14 +30,21 @@ export default function ContractsPage() {
     fetch("/api/auth/company", { method: "POST" })
       .then((r) => r.json())
       .then(({ companyId: cid }: { companyId?: string }) => {
-        if (!cid) return;
+        if (!cid) {
+          setDataLoaded(true);
+          return;
+        }
         return fetch(`/api/contracts?companyId=${cid}`)
           .then((r) => r.json())
           .then((d: MaintenanceContract[]) => {
-            if (Array.isArray(d) && d.length > 0) setContracts(d);
+            const list = Array.isArray(d) ? d : [];
+            setContracts(list);
+            setDataLoaded(true);
           });
       })
-      .catch(() => {});
+      .catch(() => {
+        setDataLoaded(true);
+      });
   }, []);
 
   const generateDraft = async (contract: MaintenanceContract) => {
@@ -224,7 +197,62 @@ export default function ContractsPage() {
 
       {/* Contract Table */}
       <div className="space-y-3">
-        {contracts
+        {!dataLoaded &&
+          [0, 1, 2].map((i) => (
+            <div key={i} style={{
+              background: "var(--bg-surface)",
+              border: "1px solid var(--bg-border)",
+              borderRadius: 14,
+              padding: 20,
+              opacity: 1 - i * 0.2,
+            }}>
+              <div style={{
+                width: "35%", height: 11, background: "var(--bg-elevated)",
+                borderRadius: 6, marginBottom: 12,
+                animation: "pulse 1.5s ease-in-out infinite"
+              }} />
+              <div style={{
+                width: "60%", height: 18, background: "var(--bg-elevated)",
+                borderRadius: 6, marginBottom: 10,
+                animation: "pulse 1.5s ease-in-out infinite",
+                animationDelay: "0.1s"
+              }} />
+            </div>
+          ))}
+        {dataLoaded && contracts.length === 0 && (
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            justifyContent: 'center', padding: '80px 20px', gap: 16, textAlign: 'center'
+          }}>
+            <div style={{
+              width: 64, height: 64, borderRadius: 20,
+              background: 'rgba(255,107,43,0.08)', border: '1px solid rgba(255,107,43,0.15)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF6B2B" strokeWidth="1.5" strokeLinecap="round">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+              </svg>
+            </div>
+            <div>
+              <p style={{fontFamily:'Space Grotesk', fontWeight:700, fontSize:18, color:'var(--text-primary)', margin:0}}>
+                No contracts yet
+              </p>
+              <p style={{color:'var(--text-secondary)', fontSize:14, marginTop:6, margin:'6px 0 0'}}>
+                Add maintenance contracts to track renewals
+              </p>
+            </div>
+            <a href="#" style={{
+              background: 'var(--orange)', color: 'white', borderRadius: 10,
+              padding: '10px 24px', fontFamily: 'Space Grotesk', fontWeight: 600,
+              fontSize: 14, textDecoration: 'none', marginTop: 8,
+              boxShadow: '0 4px 16px rgba(255,107,43,0.3)'
+            }}>+ New Contract</a>
+          </div>
+        )}
+        {dataLoaded && contracts
           .sort((a, b) => new Date(a.renewalDate).getTime() - new Date(b.renewalDate).getTime())
           .map((contract) => {
             const days = daysUntil(contract.renewalDate);
