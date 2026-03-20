@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Zap, Settings, LogOut } from "lucide-react";
@@ -49,6 +50,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
+  const [hoveredPath, setHoveredPath] = useState<string | null>(null);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -83,47 +85,65 @@ export function Sidebar() {
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         {navItems.map(({ href, label, icon }) => {
-          const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
+          const isActive = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
+          const isHovered = hoveredPath === href && !isActive;
+          
           return (
             <Link
               key={href}
               href={href}
-              onMouseEnter={(e) => {
-                if (!active) {
-                  e.currentTarget.style.background = "rgba(255,107,43,0.06)";
-                  e.currentTarget.style.color = "var(--text-primary)";
-                }
+              onMouseEnter={() => setHoveredPath(href)}
+              onMouseLeave={() => setHoveredPath(null)}
+              style={{
+                background: isActive 
+                  ? 'var(--orange-dim)' 
+                  : isHovered 
+                    ? 'rgba(255,107,43,0.08)' 
+                    : 'transparent',
+                color: isActive 
+                  ? 'var(--orange)' 
+                  : isHovered 
+                    ? 'var(--text-primary)' 
+                    : 'var(--text-secondary)',
+                borderLeft: isActive ? '2px solid var(--orange)' : '2px solid transparent',
+                borderRadius: 10,
+                height: 44,
+                display: 'flex',
+                alignItems: 'center',
+                padding: '0 12px',
+                gap: 10,
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+                textDecoration: 'none',
               }}
-              onMouseLeave={(e) => {
-                if (!active) {
-                  e.currentTarget.style.background = "transparent";
-                  e.currentTarget.style.color = "var(--text-secondary)";
-                }
-              }}
-              className={cn(
-                "group flex min-h-[44px] items-center gap-[10px] rounded-[10px] px-3 transition-all duration-150",
-                active
-                  ? "bg-[var(--orange-dim)] text-[var(--text-primary)] border-l-2 border-l-[var(--orange)] shadow-[inset_0_0_0_1px_rgba(255,107,43,0.3)]"
-                  : "text-[var(--text-secondary)] hover:bg-[rgba(255,107,43,0.06)]"
-              )}
             >
-              <span className={cn("flex-shrink-0", active ? "text-[var(--orange)]" : "text-[var(--text-secondary)]")}>
+              <span style={{ 
+                flexShrink: 0,
+                color: isActive ? 'var(--orange)' : isHovered ? 'var(--text-primary)' : 'var(--text-secondary)',
+                transition: 'color 0.15s ease'
+              }}>
                 <NavGlyph type={icon} />
               </span>
               <span
-                className={cn(
-                  "text-sm font-medium transition-colors leading-none",
-                  active
-                    ? "text-[var(--text-primary)]"
-                    : "text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]"
-                )}
+                style={{
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  lineHeight: 1,
+                  transition: 'color 0.15s ease',
+                }}
               >
                 {label}
               </span>
-              {active && (
+              {isActive && (
                 <div
-                  className="ml-auto h-[6px] w-[6px] flex-shrink-0 rounded-full pulse-dot"
-                  style={{ background: "var(--orange)" }}
+                  className="ml-auto pulse-dot"
+                  style={{ 
+                    background: "var(--orange)",
+                    height: 6,
+                    width: 6,
+                    flexShrink: 0,
+                    borderRadius: '50%'
+                  }}
                 />
               )}
             </Link>
