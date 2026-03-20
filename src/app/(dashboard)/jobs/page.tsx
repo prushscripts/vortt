@@ -60,6 +60,8 @@ export default function JobsPage() {
     ? jobs
     : jobs.filter((j) => j.status === filter);
 
+  const unassignedCount = jobs.filter((j) => !j.techId).length;
+
   const handleSwipeRight = (job: Job) => {
     console.log("Mark en route:", job.id);
   };
@@ -74,9 +76,14 @@ export default function JobsPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-heading font-bold text-2xl md:text-3xl text-[#F8F8FA]">Jobs</h1>
-          <p className="text-[var(--text-secondary)] text-sm">
-            {jobs.length} total today · {jobs.filter((j) => !j.techId).length} unassigned
+          <h1 style={{
+            fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 30,
+            color: '#F5F5F7', margin: 0, letterSpacing: '-0.02em'
+          }}>
+            Jobs
+          </h1>
+          <p style={{ color: '#8E8E93', fontSize: 14, marginTop: 4 }}>
+            {jobs.length} total today · {unassignedCount} unassigned
           </p>
         </div>
         <Link href="/jobs/new">
@@ -100,8 +107,8 @@ export default function JobsPage() {
             onClick={() => setFilter(value)}
             className={`whitespace-nowrap rounded-[20px] border px-4 py-1.5 text-[13px] transition-all ${
               filter === value
-                ? "bg-[var(--orange)] text-white border-transparent"
-                : "bg-transparent text-[var(--text-secondary)] border-[var(--bg-border)]"
+                ? "bg-[var(--orange)] text-white border-transparent shadow-[0_2px_12px_rgba(255,107,43,0.35)] font-bold"
+                : "bg-transparent text-[var(--text-secondary)] border-[var(--bg-border)] hover:border-[rgba(255,107,43,0.3)] hover:text-[var(--text-primary)]"
             }`}
           >
             {value === "all" ? "All" : label.charAt(0).toUpperCase() + label.slice(1)}
@@ -130,8 +137,30 @@ export default function JobsPage() {
             </div>
           ))}
         {filteredJobs.length === 0 && (
-          <div className="text-center py-12 bg-[var(--bg-surface)] rounded-2xl border border-[var(--bg-border)]">
-            <p className="text-[var(--text-secondary)]">No jobs found</p>
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            justifyContent: 'center', padding: '60px 20px', gap: 12, textAlign: 'center'
+          }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: 16,
+              background: 'rgba(255,107,43,0.1)', border: '1px solid rgba(255,107,43,0.2)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B2B" strokeWidth="1.5">
+                <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+              </svg>
+            </div>
+            <p style={{fontFamily:'Space Grotesk', fontWeight:600, fontSize:17, color:'var(--text-primary)', margin:0}}>
+              No jobs yet
+            </p>
+            <p style={{fontSize:14, color:'var(--text-secondary)', margin:0}}>
+              Create your first job to get started
+            </p>
+            <a href="/jobs/new" style={{
+              marginTop: 8, background: 'var(--orange)', color: 'white',
+              borderRadius: 10, padding: '10px 20px', fontFamily: 'Space Grotesk',
+              fontWeight: 600, fontSize: 14, textDecoration: 'none'
+            }}>+ New Job</a>
           </div>
         )}
         {filteredJobs.map((job) => (
