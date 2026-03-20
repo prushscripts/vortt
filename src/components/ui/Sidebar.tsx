@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/client";
 const navItems = [
   { href: "/dashboard",  label: "Dashboard",  icon: "dashboard" },
   { href: "/phases",     label: "Phases",     icon: "phases" },
+  { href: "/about",      label: "About",      icon: "about" },
   { href: "/dispatch",   label: "Dispatch",   icon: "dispatch" },
   { href: "/jobs",       label: "Jobs",       icon: "jobs" },
   { href: "/customers",  label: "Customers",  icon: "customers" },
@@ -27,6 +28,8 @@ function NavGlyph({ type }: { type: string }) {
       return <svg {...props}><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>;
     case "phases":
       return <svg {...props}><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>;
+    case "about":
+      return <svg {...props}><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>;
     case "dispatch":
       return <svg {...props}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>;
     case "jobs":
