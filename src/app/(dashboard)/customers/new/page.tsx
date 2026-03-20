@@ -85,25 +85,56 @@ export default function NewCustomerPage() {
     }
   };
 
+  const inputStyle: React.CSSProperties = {
+    width: '100%', height: 48,
+    background: 'var(--bg-elevated)',
+    border: '1px solid var(--bg-border)',
+    borderRadius: 10, padding: '0 14px',
+    color: 'var(--text-primary)', fontSize: 15,
+    outline: 'none',
+    colorScheme: 'dark',
+  };
+
+  const labelStyle: React.CSSProperties = {
+    fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em',
+    color: 'var(--text-muted)', marginBottom: 6, display: 'block',
+  };
+
   return (
-    <div className="space-y-5 max-w-2xl">
+    <div style={{maxWidth: 680, margin: '0 auto', padding: '24px 16px'}}>
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <Link href="/customers">
-          <button className="w-10 h-10 rounded-xl bg-[var(--bg-elevated)] border border-[var(--bg-border)] flex items-center justify-center hover:bg-[rgba(255,107,43,0.06)] hover:border-[var(--orange)] transition-colors">
-            <ArrowLeft className="w-5 h-5 text-zinc-600" />
-          </button>
-        </Link>
+      <div style={{display:'flex', alignItems:'center', gap:14, marginBottom:28}}>
+        <button onClick={() => router.back()} style={{
+          width:36, height:36, borderRadius:10,
+          background:'var(--bg-elevated)', border:'1px solid var(--bg-border)',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          cursor:'pointer', flexShrink:0,
+        }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" 
+               stroke="var(--text-secondary)" strokeWidth="2" strokeLinecap="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
         <div>
-          <h1 className="font-heading font-bold text-2xl text-vortt-charcoal">Add Customer</h1>
-          <p className="text-zinc-500 text-sm">New service account</p>
+          <h1 style={{fontFamily:'Space Grotesk',fontWeight:700,fontSize:24,
+                      color:'var(--text-primary)',margin:0}}>Add Customer</h1>
+          <p style={{color:'var(--text-secondary)',fontSize:13,margin:'2px 0 0'}}>
+            New service account
+          </p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        {/* Basic Info */}
-        <Card>
-          <h2 className="font-heading font-semibold text-vortt-charcoal mb-4">Contact Info</h2>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {/* Contact Info Card */}
+        <div style={{
+          background:'var(--bg-surface)', border:'1px solid var(--bg-border)',
+          borderRadius:16, padding:24, marginBottom:16
+        }}>
+          <h3 style={{fontFamily:'Space Grotesk',fontWeight:600,fontSize:14,
+                      color:'var(--text-secondary)',margin:'0 0 16px',
+                      textTransform:'uppercase',letterSpacing:'0.08em'}}>
+            Contact Info
+          </h3>
           <div className="grid grid-cols-2 gap-4">
             <Input
               label="First Name"
@@ -150,12 +181,19 @@ export default function NewCustomerPage() {
               {...register("notes")}
             />
           </div>
-        </Card>
+        </div>
 
-        {/* Equipment */}
-        <Card>
+        {/* Equipment Card */}
+        <div style={{
+          background:'var(--bg-surface)', border:'1px solid var(--bg-border)',
+          borderRadius:16, padding:24, marginBottom:24
+        }}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-heading font-semibold text-vortt-charcoal">Equipment</h2>
+            <h3 style={{fontFamily:'Space Grotesk',fontWeight:600,fontSize:14,
+                        color:'var(--text-secondary)',margin:0,
+                        textTransform:'uppercase',letterSpacing:'0.08em'}}>
+              Equipment
+            </h3>
             <Button
               type="button"
               variant="ghost"
@@ -229,7 +267,7 @@ export default function NewCustomerPage() {
               </div>
             ))}
           </div>
-        </Card>
+        </div>
 
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
@@ -237,13 +275,21 @@ export default function NewCustomerPage() {
           </div>
         )}
 
-        <div className="flex gap-3 pb-4">
-          <Link href="/customers" className="flex-1">
-            <Button variant="ghost" fullWidth>Cancel</Button>
-          </Link>
-          <Button type="submit" fullWidth loading={isSubmitting} disabled={companyLoading || !companyId}>
-            Save Customer
-          </Button>
+        {/* Action buttons */}
+        <div style={{display:'grid', gridTemplateColumns:'1fr 2fr', gap:12}}>
+          <button onClick={() => router.back()} type="button" style={{
+            height:52, background:'var(--bg-elevated)',
+            border:'1px solid var(--bg-border)', borderRadius:12,
+            color:'var(--text-secondary)', fontFamily:'Space Grotesk',
+            fontWeight:600, fontSize:15, cursor:'pointer',
+          }}>Cancel</button>
+          <button type="submit" disabled={isSubmitting || companyLoading || !companyId} style={{
+            height:52, background:'var(--orange)', border:'none',
+            borderRadius:12, color:'white', fontFamily:'Space Grotesk',
+            fontWeight:700, fontSize:15, cursor:'pointer',
+            boxShadow:'0 4px 20px rgba(255,107,43,0.35)',
+            opacity: (isSubmitting || companyLoading || !companyId) ? 0.6 : 1,
+          }}>Save Customer</button>
         </div>
       </form>
     </div>

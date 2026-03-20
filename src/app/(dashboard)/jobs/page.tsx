@@ -54,24 +54,28 @@ export default function JobsPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      {/* Header */}
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', 
+        alignItems: 'flex-start', marginBottom: 24
+      }}>
         <div>
-          <h1 style={{
-            fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 30,
-            color: '#F5F5F7', margin: 0, letterSpacing: '-0.02em'
-          }}>
+          <h1 style={{fontFamily:'Space Grotesk',fontWeight:800,fontSize:28,
+                      color:'var(--text-primary)',margin:0,letterSpacing:'-0.02em'}}>
             Jobs
           </h1>
-          <p style={{ color: '#8E8E93', fontSize: 14, marginTop: 4 }}>
+          <p style={{color:'var(--text-secondary)',fontSize:14,marginTop:4}}>
             {jobs.length} total today · {unassignedCount} unassigned
           </p>
         </div>
-        <Link href="/jobs/new">
-          <Button size="sm">
-            <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">New Job</span>
-          </Button>
-        </Link>
+        <button onClick={() => window.location.href = '/jobs/new'} style={{
+          height:40, background:'var(--orange)', color:'white',
+          border:'none', borderRadius:10, padding:'0 18px',
+          fontFamily:'Space Grotesk', fontWeight:600, fontSize:14,
+          cursor:'pointer', boxShadow:'0 4px 16px rgba(255,107,43,0.3)',
+          flexShrink:0, alignSelf:'center',
+          transition:'all 0.15s ease',
+        }}>+ New Job</button>
       </div>
 
       {/* Status Filter */}

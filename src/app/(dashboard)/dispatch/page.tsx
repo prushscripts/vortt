@@ -352,13 +352,37 @@ export default function DispatchPage() {
               </p>
               <div className="space-y-2">
                 {jobs.map((job) => (
-                  <button
-                    key={job.id}
-                    onClick={() => setSelectedJob(selectedJob?.id === job.id ? null : job)}
-                    className={`w-full text-left bg-[#161618] border border-[#2A2A2E] rounded-[14px] p-4 transition-all ${
-                      selectedJob?.id === job.id ? "border-vortt-orange" : "hover:border-[#3a3a40]"
-                    }`}
-                  >
+                  <div key={job.id} className="dispatch-card" style={{position:'relative'}}>
+                    <button
+                      onClick={() => setSelectedJob(selectedJob?.id === job.id ? null : job)}
+                      className={`w-full text-left bg-[#161618] border border-[#2A2A2E] rounded-[14px] p-4 transition-all ${
+                        selectedJob?.id === job.id ? "border-vortt-orange" : "hover:border-[#3a3a40]"
+                      }`}
+                    >
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (!confirm('Remove this job from dispatch?')) return;
+                          await fetch(`/api/jobs/${job.id}`, { method: 'DELETE' });
+                          setJobs(prev => prev.filter(j => j.id !== job.id));
+                        }}
+                        className="delete-btn"
+                        style={{
+                          position: 'absolute', top: 8, right: 8,
+                          width: 28, height: 28, borderRadius: 8,
+                          background: 'rgba(255,69,58,0.1)',
+                          border: '1px solid rgba(255,69,58,0.2)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          cursor: 'pointer', color: 'var(--red)',
+                          opacity: 0, transition: 'opacity 0.15s ease',
+                        }}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" 
+                             stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                          <line x1="18" y1="6" x2="6" y2="18"/>
+                          <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                      </button>
                     {!job.techId && suggestions.find((s) => s.job.id === job.id) ? (
                       <div className="mb-2 rounded-lg border border-[rgba(255,107,43,0.3)] bg-[rgba(255,107,43,0.08)] px-3 py-2 text-xs text-[var(--text-secondary)]">
                         AI suggests: <strong className="text-[var(--text-primary)]">{suggestions.find((s) => s.job.id === job.id)?.tech.name}</strong>
@@ -393,7 +417,8 @@ export default function DispatchPage() {
                         <p className="text-xs text-vortt-red font-medium">Unassigned</p>
                       </div>
                     )}
-                  </button>
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>

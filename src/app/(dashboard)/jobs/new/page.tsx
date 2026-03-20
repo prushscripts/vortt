@@ -120,30 +120,141 @@ export default function NewJobPage() {
 
   const displayQuote = quoteAdjusted ?? quoteResult;
 
+  const inputStyle: React.CSSProperties = {
+    width: '100%', height: 48,
+    background: 'var(--bg-elevated)',
+    border: '1px solid var(--bg-border)',
+    borderRadius: 10, padding: '0 14px',
+    color: 'var(--text-primary)', fontSize: 15,
+    outline: 'none',
+    colorScheme: 'dark',
+  };
+
+  const labelStyle: React.CSSProperties = {
+    fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em',
+    color: 'var(--text-muted)', marginBottom: 6, display: 'block',
+  };
+
   return (
-    <div className="space-y-5 max-w-2xl">
-      <div className="flex items-center gap-3">
-        <Link href="/jobs">
-          <button className="w-10 h-10 rounded-xl bg-[var(--bg-elevated)] border border-[var(--bg-border)] flex items-center justify-center hover:bg-[rgba(255,107,43,0.06)] hover:border-[var(--orange)] transition-colors">
-            <ArrowLeft className="w-5 h-5 text-zinc-600" />
-          </button>
-        </Link>
+    <div style={{maxWidth: 680, margin: '0 auto', padding: '24px 16px'}}>
+      {/* Header */}
+      <div style={{display:'flex', alignItems:'center', gap:14, marginBottom:28}}>
+        <button onClick={() => router.back()} style={{
+          width:36, height:36, borderRadius:10,
+          background:'var(--bg-elevated)', border:'1px solid var(--bg-border)',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          cursor:'pointer', flexShrink:0,
+        }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" 
+               stroke="var(--text-secondary)" strokeWidth="2" strokeLinecap="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
         <div>
-          <h1 className="font-heading font-bold text-2xl text-vortt-charcoal">New Job</h1>
-          <p className="text-zinc-500 text-sm">Schedule a service call</p>
+          <h1 style={{fontFamily:'Space Grotesk',fontWeight:700,fontSize:24,
+                      color:'var(--text-primary)',margin:0}}>New Job</h1>
+          <p style={{color:'var(--text-secondary)',fontSize:13,margin:'2px 0 0'}}>
+            Schedule a service call
+          </p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        {/* Photo-to-Quote */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-vortt-orange" />
-              <CardTitle>AI Photo Quote</CardTitle>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {/* Job Details Card */}
+        <div style={{
+          background:'var(--bg-surface)', border:'1px solid var(--bg-border)',
+          borderRadius:16, padding:24, marginBottom:16
+        }}>
+          <h3 style={{fontFamily:'Space Grotesk',fontWeight:600,fontSize:14,
+                      color:'var(--text-secondary)',margin:'0 0 16px',
+                      textTransform:'uppercase',letterSpacing:'0.08em'}}>
+            Job Details
+          </h3>
+          
+          <div className="space-y-4">
+            <Select
+              label="Customer"
+              options={[{ value: "", label: "Select customer..." }, ...mockCustomers]}
+              error={errors.customerId?.message}
+              {...register("customerId")}
+            />
+            <div className="grid grid-cols-2 gap-4">
+              <Select
+                label="Job Type"
+                options={[
+                  { value: "maintenance", label: "Maintenance" },
+                  { value: "repair", label: "Repair" },
+                  { value: "install", label: "Installation" },
+                  { value: "emergency", label: "Emergency" },
+                ]}
+                {...register("jobType")}
+              />
+              <Select
+                label="Priority"
+                options={[
+                  { value: "normal", label: "Normal" },
+                  { value: "high", label: "High" },
+                  { value: "emergency", label: "Emergency" },
+                ]}
+                {...register("priority")}
+              />
             </div>
-            <span className="text-xs text-zinc-400">Optional</span>
-          </CardHeader>
+            <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:12}}>
+              <div>
+                <label style={labelStyle}>SCHEDULED DATE</label>
+                <input
+                  type="date"
+                  defaultValue={new Date().toISOString().split('T')[0]}
+                  style={inputStyle}
+                  {...register("scheduledAt")}
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>TIME</label>
+                <input
+                  type="time"
+                  defaultValue="09:00"
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+            <Select
+              label="Assign Tech"
+              options={mockTechs}
+              {...register("techId")}
+            />
+            <Textarea
+              label="Description"
+              placeholder="What's the issue? Any customer-reported symptoms?"
+              rows={3}
+              {...register("description")}
+            />
+            <Input
+              label="Estimated Amount ($)"
+              type="number"
+              placeholder="0.00"
+              {...register("totalAmount")}
+            />
+          </div>
+        </div>
+
+        {/* AI Photo Quote Card */}
+        <div style={{
+          background:'var(--bg-surface)', border:'1px solid var(--bg-border)',
+          borderRadius:16, padding:24, marginBottom:24
+        }}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+            <div style={{display:'flex',alignItems:'center',gap:8}}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" 
+                   stroke="var(--orange)" strokeWidth="2">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+              </svg>
+              <span style={{fontFamily:'Space Grotesk',fontWeight:600,fontSize:14,
+                            color:'var(--text-primary)'}}>AI Photo Quote</span>
+            </div>
+            <span style={{fontSize:11,color:'var(--text-muted)',
+                          textTransform:'uppercase',letterSpacing:'0.08em'}}>Optional</span>
+          </div>
           <p className="text-sm text-zinc-500 mb-3">
             Snap a photo of the unit — AI will diagnose and suggest a quote range.
           </p>
@@ -245,63 +356,7 @@ export default function NewJobPage() {
               </Button>
             </div>
           )}
-        </Card>
-
-        {/* Job Details */}
-        <Card>
-          <h2 className="font-heading font-semibold text-vortt-charcoal mb-4">Job Details</h2>
-          <div className="space-y-4">
-            <Select
-              label="Customer"
-              options={[{ value: "", label: "Select customer..." }, ...mockCustomers]}
-              error={errors.customerId?.message}
-              {...register("customerId")}
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <Select
-                label="Job Type"
-                options={[
-                  { value: "maintenance", label: "Maintenance" },
-                  { value: "repair", label: "Repair" },
-                  { value: "install", label: "Installation" },
-                  { value: "emergency", label: "Emergency" },
-                ]}
-                {...register("jobType")}
-              />
-              <Select
-                label="Priority"
-                options={[
-                  { value: "normal", label: "Normal" },
-                  { value: "high", label: "High" },
-                  { value: "emergency", label: "Emergency" },
-                ]}
-                {...register("priority")}
-              />
-            </div>
-            <Input
-              label="Scheduled Date & Time"
-              type="datetime-local"
-              {...register("scheduledAt")}
-            />
-            <Select
-              label="Assign Tech"
-              options={mockTechs}
-              {...register("techId")}
-            />
-            <Textarea
-              label="Description"
-              placeholder="What's the issue? Any customer-reported symptoms?"
-              rows={3}
-              {...register("description")}
-            />
-            <Input
-              label="Estimated Amount ($)"
-              type="number"
-              placeholder="0.00"
-              {...register("totalAmount")}
-            />
-          </div>
-        </Card>
+        </div>
 
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
@@ -309,13 +364,21 @@ export default function NewJobPage() {
           </div>
         )}
 
-        <div className="flex gap-3 pb-4">
-          <Link href="/jobs" className="flex-1">
-            <Button variant="ghost" fullWidth>Cancel</Button>
-          </Link>
-          <Button type="submit" fullWidth loading={isSubmitting} disabled={companyLoading || !companyId}>
-            Schedule Job
-          </Button>
+        {/* Action buttons */}
+        <div style={{display:'grid', gridTemplateColumns:'1fr 2fr', gap:12}}>
+          <button onClick={() => router.back()} type="button" style={{
+            height:52, background:'var(--bg-elevated)',
+            border:'1px solid var(--bg-border)', borderRadius:12,
+            color:'var(--text-secondary)', fontFamily:'Space Grotesk',
+            fontWeight:600, fontSize:15, cursor:'pointer',
+          }}>Cancel</button>
+          <button type="submit" disabled={isSubmitting || companyLoading || !companyId} style={{
+            height:52, background:'var(--orange)', border:'none',
+            borderRadius:12, color:'white', fontFamily:'Space Grotesk',
+            fontWeight:700, fontSize:15, cursor:'pointer',
+            boxShadow:'0 4px 20px rgba(255,107,43,0.35)',
+            opacity: (isSubmitting || companyLoading || !companyId) ? 0.6 : 1,
+          }}>Schedule Job</button>
         </div>
       </form>
     </div>

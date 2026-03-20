@@ -46,7 +46,7 @@ export default function InventoryPage() {
           <h1 className="font-heading font-bold text-2xl md:text-3xl text-vortt-charcoal">Inventory</h1>
           <p className="text-zinc-500 text-sm">{parts.length} parts tracked</p>
         </div>
-        <Button size="sm">
+        <Button size="sm" onClick={() => window.location.href = '/inventory/new'}>
           <Plus className="w-4 h-4" />
           Add Part
         </Button>

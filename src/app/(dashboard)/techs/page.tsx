@@ -41,15 +41,27 @@ export default function TechsPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', 
+        alignItems: 'flex-start', marginBottom: 24
+      }}>
         <div>
-          <h1 className="font-heading font-bold text-2xl md:text-3xl text-vortt-charcoal">Technicians</h1>
-          <p className="text-zinc-500 text-sm">{techs.filter(t => t.isActive).length} active</p>
+          <h1 style={{fontFamily:'Space Grotesk',fontWeight:800,fontSize:28,
+                      color:'var(--text-primary)',margin:0,letterSpacing:'-0.02em'}}>
+            Technicians
+          </h1>
+          <p style={{color:'var(--text-secondary)',fontSize:14,marginTop:4}}>
+            {techs.filter(t => t.isActive).length} active
+          </p>
         </div>
-        <Button size="sm">
-          <Plus className="w-4 h-4" />
-          Add Tech
-        </Button>
+        <button style={{
+          height:40, background:'var(--orange)', color:'white',
+          border:'none', borderRadius:10, padding:'0 18px',
+          fontFamily:'Space Grotesk', fontWeight:600, fontSize:14,
+          cursor:'pointer', boxShadow:'0 4px 16px rgba(255,107,43,0.3)',
+          flexShrink:0, alignSelf:'center',
+          transition:'all 0.15s ease',
+        }}>+ Add Tech</button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

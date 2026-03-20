@@ -58,17 +58,27 @@ export default function CustomersPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', 
+        alignItems: 'flex-start', marginBottom: 24
+      }}>
         <div>
-          <h1 className="font-heading font-bold text-2xl md:text-3xl text-[#F8F8FA]">Customers</h1>
-          <p className="text-[var(--text-secondary)] text-sm">{customers.length} total</p>
+          <h1 style={{fontFamily:'Space Grotesk',fontWeight:800,fontSize:28,
+                      color:'var(--text-primary)',margin:0,letterSpacing:'-0.02em'}}>
+            Customers
+          </h1>
+          <p style={{color:'var(--text-secondary)',fontSize:14,marginTop:4}}>
+            {customers.length} total
+          </p>
         </div>
-        <Link href="/customers/new">
-          <Button size="sm">
-            <UserPlus className="w-4 h-4" />
-            <span className="hidden sm:inline">Add Customer</span>
-          </Button>
-        </Link>
+        <button onClick={() => window.location.href = '/customers/new'} style={{
+          height:40, background:'var(--orange)', color:'white',
+          border:'none', borderRadius:10, padding:'0 18px',
+          fontFamily:'Space Grotesk', fontWeight:600, fontSize:14,
+          cursor:'pointer', boxShadow:'0 4px 16px rgba(255,107,43,0.3)',
+          flexShrink:0, alignSelf:'center',
+          transition:'all 0.15s ease',
+        }}>+ Add Customer</button>
       </div>
 
       {/* Search */}

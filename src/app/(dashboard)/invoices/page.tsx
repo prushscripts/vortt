@@ -78,10 +78,18 @@ export default function InvoicesPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', 
+        alignItems: 'flex-start', marginBottom: 24
+      }}>
         <div>
-          <h1 className="font-heading font-bold text-2xl md:text-3xl text-vortt-charcoal">Invoices</h1>
-          <p className="text-zinc-500 text-sm">{invoices.length} total</p>
+          <h1 style={{fontFamily:'Space Grotesk',fontWeight:800,fontSize:28,
+                      color:'var(--text-primary)',margin:0,letterSpacing:'-0.02em'}}>
+            Invoices
+          </h1>
+          <p style={{color:'var(--text-secondary)',fontSize:14,marginTop:4}}>
+            {invoices.length} total
+          </p>
         </div>
         <Button size="sm">+ New Invoice</Button>
       </div>

@@ -104,7 +104,7 @@ export default function ContractsPage() {
           <h1 className="font-heading font-bold text-2xl md:text-3xl text-vortt-charcoal">Contracts</h1>
           <p className="text-zinc-500 text-sm">{contracts.length} active contracts</p>
         </div>
-        <Button size="sm">+ New Contract</Button>
+        <Button size="sm" onClick={() => window.location.href = '/contracts/new'}>+ New Contract</Button>
       </div>
 
       {/* Summary Cards */}

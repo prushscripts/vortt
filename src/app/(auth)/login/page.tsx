@@ -18,6 +18,7 @@ type FormData = z.infer<typeof schema>;
 export default function LoginPage() {
   const [error, setError] = useState("");
   const [signingIn, setSigningIn] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
@@ -28,10 +29,11 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithPassword({ email: data.email, password: data.password });
     if (error) { setError(error.message); return; }
     setSigningIn(true);
+    setShowLoader(true);
     window.setTimeout(() => {
       router.push("/dashboard");
       router.refresh();
-    }, 600);
+    }, 1800);
   };
 
   return (
@@ -168,6 +170,65 @@ export default function LoginPage() {
           </p>
         </div>
       </section>
+
+      {/* Loading Screen */}
+      {showLoader && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 9999,
+          background: '#0E0E10',
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          gap: 32,
+          animation: 'fadeIn 0.3s ease',
+        }}>
+          {/* Logo */}
+          <div style={{display:'flex', alignItems:'center', gap:12}}>
+            <div style={{
+              width: 48, height: 48, borderRadius: 14,
+              background: '#FF6B2B',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 0 40px rgba(255,107,43,0.5)',
+              animation: 'glowPulse 1.5s ease-in-out infinite',
+            }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+              </svg>
+            </div>
+            <span style={{
+              fontFamily: 'Space Grotesk', fontWeight: 800,
+              fontSize: 32, color: '#F5F5F7', letterSpacing: '-0.02em',
+            }}>VORTT</span>
+          </div>
+
+          {/* Animated bars */}
+          <div style={{display:'flex', gap:6, alignItems:'flex-end', height:32}}>
+            {[0,1,2,3,4].map(i => (
+              <div key={i} style={{
+                width: 4, borderRadius: 2,
+                background: i === 2 ? '#FF6B2B' : 'rgba(255,107,43,0.3)',
+                animation: `barBounce 1s ease-in-out infinite`,
+                animationDelay: `${i * 0.12}s`,
+                height: 16 + i * 4,
+              }}/>
+            ))}
+            {[3,2,1,0].map(i => (
+              <div key={`r${i}`} style={{
+                width: 4, borderRadius: 2,
+                background: i === 2 ? '#FF6B2B' : 'rgba(255,107,43,0.3)',
+                animation: `barBounce 1s ease-in-out infinite`,
+                animationDelay: `${(9-i) * 0.12}s`,
+                height: 16 + i * 4,
+              }}/>
+            ))}
+          </div>
+
+          <p style={{
+            color: 'var(--text-muted)', fontSize: 13,
+            fontFamily: 'Space Grotesk', letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+          }}>Loading your dashboard...</p>
+        </div>
+      )}
     </div>
   );
 }
