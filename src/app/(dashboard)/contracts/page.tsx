@@ -6,7 +6,6 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ContractBadge } from "@/components/ui/Badge";
 import { formatCurrency, formatDate, daysUntil } from "@/lib/utils/format";
-import { useCompanyId } from "@/hooks/useCompanyId";
 import type { MaintenanceContract } from "@/types";
 
 // Mock data — replace with API
@@ -53,7 +52,6 @@ interface OutreachState {
 }
 
 export default function ContractsPage() {
-  const { companyId } = useCompanyId();
   const [contracts, setContracts] = useState<MaintenanceContract[]>(mockContracts);
   const [outreach, setOutreach] = useState<OutreachState | null>(null);
   const [sendingAll, setSendingAll] = useState(false);
@@ -63,11 +61,18 @@ export default function ContractsPage() {
   const atRiskValue = [...expiringSoon, ...expired].reduce((sum, c) => sum + c.price, 0);
 
   useEffect(() => {
-    if (!companyId) return;
-    fetch(`/api/contracts?companyId=${companyId}`)
+    fetch("/api/auth/company", { method: "POST" })
       .then((r) => r.json())
-      .then((d) => setContracts(Array.isArray(d) ? d : []));
-  }, [companyId]);
+      .then(({ companyId: cid }: { companyId?: string }) => {
+        if (!cid) return;
+        return fetch(`/api/contracts?companyId=${cid}`)
+          .then((r) => r.json())
+          .then((d: MaintenanceContract[]) => {
+            if (Array.isArray(d) && d.length > 0) setContracts(d);
+          });
+      })
+      .catch(() => {});
+  }, []);
 
   const generateDraft = async (contract: MaintenanceContract) => {
     setOutreach({ contractId: contract.id, draft: "", loading: true, sent: false });

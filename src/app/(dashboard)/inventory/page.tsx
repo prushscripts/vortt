@@ -5,7 +5,6 @@ import { Package, AlertTriangle, Plus, TrendingDown } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency } from "@/lib/utils/format";
-import { useCompanyId } from "@/hooks/useCompanyId";
 import type { Part } from "@/types";
 
 const mockParts: Part[] = [
@@ -18,16 +17,22 @@ const mockParts: Part[] = [
 ];
 
 export default function InventoryPage() {
-  const { companyId } = useCompanyId();
   const [parts, setParts] = useState<Part[]>(mockParts);
   const [filter, setFilter] = useState<"all" | "low" | "out">("all");
 
   useEffect(() => {
-    if (!companyId) return;
-    fetch(`/api/inventory?companyId=${companyId}`)
+    fetch("/api/auth/company", { method: "POST" })
       .then((r) => r.json())
-      .then((d) => setParts(Array.isArray(d) ? d : []));
-  }, [companyId]);
+      .then(({ companyId: cid }: { companyId?: string }) => {
+        if (!cid) return;
+        return fetch(`/api/inventory?companyId=${cid}`)
+          .then((r) => r.json())
+          .then((d: Part[]) => {
+            if (Array.isArray(d) && d.length > 0) setParts(d);
+          });
+      })
+      .catch(() => {});
+  }, []);
 
   const lowStock = parts.filter(p => p.stockQty > 0 && p.stockQty <= p.minStock);
   const outOfStock = parts.filter(p => p.stockQty === 0);

@@ -6,8 +6,6 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
-import { useCompanyId } from "@/hooks/useCompanyId";
-
 interface Invoice {
   id: string;
   invoiceNo: string;
@@ -27,31 +25,39 @@ const statusConfig: Record<Invoice["status"], { label: string; color: string; bg
   overdue: { label: "Overdue", color: "text-vortt-red", bg: "bg-red-100" },
 };
 
+const mockInvoices: Invoice[] = [
+  { id: "inv-demo-1", invoiceNo: "INV-1042", customerName: "Maria Gonzalez", customerPhone: "5121234567", jobType: "HVAC Service", totalAmount: 850, status: "sent", createdAt: new Date().toISOString(), dueDate: new Date(Date.now() + 86400000 * 14).toISOString() },
+  { id: "inv-demo-2", invoiceNo: "INV-1041", customerName: "James Whitfield", customerPhone: "5129876543", jobType: "HVAC Service", totalAmount: 1295, status: "paid", createdAt: new Date(Date.now() - 86400000 * 5).toISOString(), dueDate: new Date().toISOString() },
+];
+
 export default function InvoicesPage() {
-  const { companyId } = useCompanyId();
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>(mockInvoices);
   const [filter, setFilter] = useState<Invoice["status"] | "all">("all");
 
   useEffect(() => {
-    if (!companyId) return;
-    fetch(`/api/invoices?companyId=${companyId}`)
+    fetch("/api/auth/company", { method: "POST" })
       .then((r) => r.json())
-      .then((rows) =>
-        setInvoices(
-          (rows ?? []).map((r: { id: string; invoiceNo: string; status: Invoice["status"]; createdAt: string; dueDate: string; totalAmount: number; customer: { firstName: string; lastName: string; phone: string } }) => ({
-            id: r.id,
-            invoiceNo: r.invoiceNo,
-            customerName: `${r.customer?.firstName ?? ""} ${r.customer?.lastName ?? ""}`.trim(),
-            customerPhone: r.customer?.phone ?? "",
-            jobType: "HVAC Service",
-            totalAmount: r.totalAmount,
-            status: r.status,
-            createdAt: r.createdAt,
-            dueDate: r.dueDate,
-          }))
-        )
-      );
-  }, [companyId]);
+      .then(({ companyId: cid }: { companyId?: string }) => {
+        if (!cid) return;
+        return fetch(`/api/invoices?companyId=${cid}`)
+          .then((r) => r.json())
+          .then((rows) => {
+            const mapped = (rows ?? []).map((r: { id: string; invoiceNo: string; status: Invoice["status"]; createdAt: string; dueDate: string; totalAmount: number; customer: { firstName: string; lastName: string; phone: string } }) => ({
+              id: r.id,
+              invoiceNo: r.invoiceNo,
+              customerName: `${r.customer?.firstName ?? ""} ${r.customer?.lastName ?? ""}`.trim(),
+              customerPhone: r.customer?.phone ?? "",
+              jobType: "HVAC Service",
+              totalAmount: r.totalAmount,
+              status: r.status,
+              createdAt: r.createdAt,
+              dueDate: r.dueDate,
+            }));
+            if (Array.isArray(mapped) && mapped.length > 0) setInvoices(mapped);
+          });
+      })
+      .catch(() => {});
+  }, []);
 
   const totalPaid = invoices.filter(i => i.status === "paid").reduce((s, i) => s + i.totalAmount, 0);
   const totalOutstanding = invoices.filter(i => i.status === "sent" || i.status === "overdue").reduce((s, i) => s + i.totalAmount, 0);

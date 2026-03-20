@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/Button";
 import { StatusBadge, PriorityBadge } from "@/components/ui/Badge";
 import { DispatchMap } from "@/components/dispatch/DispatchMap";
 import { formatDateTime } from "@/lib/utils/format";
-import { useCompanyId } from "@/hooks/useCompanyId";
 import type { Job, Tech, DispatchSuggestion } from "@/types";
 
 // Mock techs with current locations
@@ -68,7 +67,6 @@ interface SuggestionCard {
 }
 
 export default function DispatchPage() {
-  const { companyId } = useCompanyId();
   const [techs, setTechs] = useState<Tech[]>(mockTechs);
   const [jobs, setJobs] = useState<Job[]>(mockJobs);
   const [suggestions, setSuggestions] = useState<SuggestionCard[]>([]);
@@ -78,15 +76,22 @@ export default function DispatchPage() {
   const [acceptedCount, setAcceptedCount] = useState(0);
 
   useEffect(() => {
-    if (!companyId) return;
-    Promise.all([
-      fetch(`/api/jobs?companyId=${companyId}`).then((r) => r.json()),
-      fetch(`/api/techs?companyId=${companyId}`).then((r) => r.json()),
-    ]).then(([jobsRes, techsRes]) => {
-      setJobs(Array.isArray(jobsRes) ? jobsRes : []);
-      setTechs(Array.isArray(techsRes) ? techsRes : []);
-    });
-  }, [companyId]);
+    fetch("/api/auth/company", { method: "POST" })
+      .then((r) => r.json())
+      .then(({ companyId: cid }: { companyId?: string }) => {
+        if (!cid) return;
+        return Promise.all([
+          fetch(`/api/jobs?companyId=${cid}`).then((r) => r.json()),
+          fetch(`/api/techs?companyId=${cid}`).then((r) => r.json()),
+        ]).then(([jobsRes, techsRes]) => {
+          const jobList = Array.isArray(jobsRes) ? jobsRes : [];
+          const techList = Array.isArray(techsRes) ? techsRes : [];
+          if (jobList.length > 0) setJobs(jobList);
+          if (techList.length > 0) setTechs(techList);
+        });
+      })
+      .catch(() => {});
+  }, []);
 
   const unassignedJobs = jobs.filter((j) => !j.techId && !assignments.has(j.id));
   const allJobs = [...assignedJobs, ...jobs.map(j => ({

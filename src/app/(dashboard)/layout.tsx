@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Sidebar, BottomNav } from "@/components/ui/Sidebar";
 
 const pageTitles: Record<string, string> = {
@@ -38,8 +39,53 @@ function TopBar() {
 }
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    setLoading(true);
+    setProgress(20);
+    const t1 = window.setTimeout(() => setProgress(60), 100);
+    const t2 = window.setTimeout(() => setProgress(90), 200);
+    const t3 = window.setTimeout(() => setProgress(100), 300);
+    const t4 = window.setTimeout(() => {
+      setLoading(false);
+      setProgress(0);
+    }, 500);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+      window.clearTimeout(t3);
+      window.clearTimeout(t4);
+    };
+  }, [pathname]);
+
   return (
     <div className="min-h-screen" style={{ background: "#080809" }}>
+      {loading && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 2,
+            zIndex: 9999,
+            background: "var(--bg-border)",
+          }}
+        >
+          <div
+            style={{
+              height: "100%",
+              background: "var(--orange)",
+              width: `${progress}%`,
+              transition: "width 0.15s ease",
+              boxShadow: "0 0 8px var(--orange-glow)",
+            }}
+          />
+        </div>
+      )}
       <Sidebar />
       <div className="md:ml-[220px] flex flex-col min-h-screen">
         <TopBar />

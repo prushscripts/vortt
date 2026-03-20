@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Zap } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vortt.vercel.app";
+const EMAIL_REDIRECT = `${SITE_URL}/dashboard`;
 
 const schema = z.object({
   companyName: z.string().min(2, "Company name required"),
@@ -19,7 +21,8 @@ type FormData = z.infer<typeof schema>;
 
 export default function SignupPage() {
   const [error, setError] = useState("");
-  const router = useRouter();
+  const [signupSuccess, setSignupSuccess] = useState(false);
+  const [submittedEmail, setSubmittedEmail] = useState("");
   const supabase = createClient();
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({ resolver: zodResolver(schema) });
@@ -29,13 +32,130 @@ export default function SignupPage() {
     const { error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
-      options: { data: { company_name: data.companyName, phone: data.phone } },
+      options: {
+        emailRedirectTo: EMAIL_REDIRECT,
+        data: { company_name: data.companyName, phone: data.phone },
+      },
     });
-    if (error) { setError(error.message); return; }
-    await fetch("/api/auth/company", { method: "POST" });
-    router.push("/pricing");
-    router.refresh();
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    setSubmittedEmail(data.email);
+    setSignupSuccess(true);
   };
+
+  if (signupSuccess) {
+    return (
+      <div className="min-h-screen bg-[#0E0E10] md:flex">
+        <aside
+          className="hidden md:flex md:w-[45%] flex-col justify-between p-12"
+          style={{
+            background: "linear-gradient(135deg, #1C1C1F 0%, #0E0E10 100%)",
+            borderRight: "1px solid #2A2A2E",
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-lg flex items-center justify-center bg-[#FF6B2B]">
+              <Zap className="h-4 w-4 text-white" fill="white" />
+            </div>
+            <span className="font-heading font-bold text-[20px] text-[#F5F5F7] tracking-tight">VORTT</span>
+          </div>
+          <div>
+            <h2 className="font-heading text-[36px] leading-[1.2] font-bold text-[#F5F5F7]">Run your shop smarter.</h2>
+            <p className="mt-3 text-[16px] text-[#8E8E93]">
+              AI dispatch, job tracking, and contract management - built for HVAC contractors.
+            </p>
+          </div>
+          <p className="text-sm text-[#8E8E93]">Trusted by HVAC contractors across the US</p>
+        </aside>
+
+        <section className="relative flex w-full md:w-[55%] items-center justify-center bg-[#0E0E10] p-8">
+          <div
+            style={{
+              position: "absolute",
+              width: "500px",
+              height: "500px",
+              borderRadius: "50%",
+              background: "radial-gradient(circle, rgba(255,107,43,0.10) 0%, rgba(255,107,43,0.04) 40%, transparent 70%)",
+              top: "30%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              zIndex: 0,
+              pointerEvents: "none",
+              animation: "orbPulse 6s ease-in-out infinite",
+            }}
+          />
+          <div
+            className="relative z-10 w-full max-w-[420px]"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 20,
+              padding: 32,
+              textAlign: "center",
+            }}
+          >
+            <div
+              style={{
+                width: 64,
+                height: 64,
+                borderRadius: "50%",
+                background: "rgba(48,209,88,0.12)",
+                border: "1px solid rgba(48,209,88,0.3)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                animation: "fadeIn 0.4s ease",
+              }}
+            >
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#30D158" strokeWidth="2.5" strokeLinecap="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+
+            <div>
+              <h2 style={{ fontFamily: "var(--font-space-grotesk, 'Space Grotesk')", fontWeight: 700, fontSize: 24, color: "var(--text-primary)", margin: 0 }}>
+                Account created!
+              </h2>
+              <p style={{ color: "var(--text-secondary)", fontSize: 15, marginTop: 8, lineHeight: 1.5 }}>
+                We sent a confirmation email to<br />
+                <strong style={{ color: "var(--text-primary)" }}>{submittedEmail}</strong>
+              </p>
+              <p style={{ color: "var(--text-muted)", fontSize: 13, marginTop: 12 }}>
+                Click the link in the email to activate your account,<br />then sign in below.
+              </p>
+            </div>
+
+            <Link
+              href="/login"
+              style={{
+                display: "block",
+                width: "100%",
+                height: 48,
+                background: "var(--orange)",
+                color: "white",
+                border: "none",
+                borderRadius: 10,
+                fontFamily: "var(--font-space-grotesk, 'Space Grotesk')",
+                fontWeight: 600,
+                fontSize: 15,
+                cursor: "pointer",
+                textDecoration: "none",
+                lineHeight: "48px",
+                textAlign: "center",
+                marginTop: 8,
+              }}
+            >
+              Go to Sign In
+            </Link>
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0E0E10] md:flex">

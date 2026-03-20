@@ -17,6 +17,7 @@ type FormData = z.infer<typeof schema>;
 
 export default function LoginPage() {
   const [error, setError] = useState("");
+  const [signingIn, setSigningIn] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
@@ -26,8 +27,11 @@ export default function LoginPage() {
     setError("");
     const { error } = await supabase.auth.signInWithPassword({ email: data.email, password: data.password });
     if (error) { setError(error.message); return; }
-    router.push("/dashboard");
-    router.refresh();
+    setSigningIn(true);
+    window.setTimeout(() => {
+      router.push("/dashboard");
+      router.refresh();
+    }, 600);
   };
 
   return (
@@ -139,10 +143,22 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || signingIn}
               className="mt-2 h-12 w-full rounded-[10px] border-none bg-[#FF6B2B] font-heading text-[15px] font-bold text-white transition-colors hover:bg-[#FF5A1A] disabled:opacity-70"
+              style={{ opacity: signingIn ? 0.8 : 1 }}
             >
-              {isSubmitting ? "Signing In..." : "Sign In"}
+              {signingIn ? (
+                <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ animation: "spin 0.8s linear infinite" }}>
+                    <path d="M21 12a9 9 0 11-6.219-8.56" />
+                  </svg>
+                  Signing in...
+                </span>
+              ) : isSubmitting ? (
+                "Signing In..."
+              ) : (
+                "Sign In"
+              )}
             </button>
           </form>
 

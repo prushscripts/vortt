@@ -6,24 +6,55 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { JobCard } from "@/components/jobs/JobCard";
 import { useRouter } from "next/navigation";
-import { useCompanyId } from "@/hooks/useCompanyId";
 import type { Job, JobStatus } from "@/types";
 
+const mockJobs: Job[] = [
+  {
+    id: "j-demo-1", companyId: "c1", customerId: "c1", jobType: "emergency", status: "scheduled", priority: "emergency",
+    scheduledAt: new Date().toISOString(),
+    description: "Complete AC failure — 95°F inside.",
+    photos: [], invoiceSent: false, reviewSent: false, createdAt: new Date().toISOString(),
+    customer: { id: "c1", companyId: "c1", firstName: "Sandra", lastName: "Kim", phone: "5122345678", address: "3341 Burnet Rd, Austin TX 78756", createdAt: new Date().toISOString() },
+  },
+  {
+    id: "j-demo-2", companyId: "c1", customerId: "c2", jobType: "repair", status: "scheduled", priority: "high",
+    scheduledAt: new Date(Date.now() + 1000 * 60 * 60).toISOString(),
+    description: "Heat pump not switching to cooling mode",
+    photos: [], invoiceSent: false, reviewSent: false, createdAt: new Date().toISOString(),
+    customer: { id: "c2", companyId: "c1", firstName: "James", lastName: "Whitfield", phone: "5129876543", address: "892 Riverside Dr, Austin TX 78704", createdAt: new Date().toISOString() },
+  },
+  {
+    id: "j-demo-3", companyId: "c1", customerId: "c3", jobType: "maintenance", status: "scheduled", priority: "normal",
+    scheduledAt: new Date(Date.now() + 1000 * 60 * 60 * 2).toISOString(),
+    description: "Annual maintenance + filter replacement",
+    photos: [], invoiceSent: false, reviewSent: false, createdAt: new Date().toISOString(),
+    customer: { id: "c3", companyId: "c1", firstName: "Maria", lastName: "Gonzalez", phone: "5121234567", address: "1420 Oak Street, Austin TX 78701", createdAt: new Date().toISOString() },
+  },
+];
+
 export default function JobsPage() {
-  const { companyId, loading: companyLoading } = useCompanyId();
   const [filter, setFilter] = useState<JobStatus | "all">("all");
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [jobsLoading, setJobsLoading] = useState(true);
+  const [jobs, setJobs] = useState<Job[]>(mockJobs);
+  const [jobsLoading, setJobsLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    if (!companyId) return;
     setJobsLoading(true);
-    fetch(`/api/jobs?companyId=${companyId}`)
+    fetch("/api/auth/company", { method: "POST" })
       .then((r) => r.json())
-      .then((d) => setJobs(d.jobs ?? d))
+      .then(({ companyId: cid }: { companyId?: string }) => {
+        if (!cid) return;
+        return fetch(`/api/jobs?companyId=${cid}`)
+          .then((r) => r.json())
+          .then((data: Job[] | { jobs?: Job[]; error?: string }) => {
+            const list = Array.isArray(data) ? data : (data?.jobs ?? []);
+            if (!Array.isArray(list) || list.length === 0) return;
+            setJobs(list);
+          });
+      })
+      .catch(() => {})
       .finally(() => setJobsLoading(false));
-  }, [companyId]);
+  }, []);
 
   const filteredJobs = filter === "all"
     ? jobs
@@ -80,7 +111,7 @@ export default function JobsPage() {
 
       {/* Job List */}
       <div className="space-y-3">
-        {(companyLoading || jobsLoading) &&
+        {jobsLoading &&
           [1, 2, 3].map((i) => (
             <div
               key={i}

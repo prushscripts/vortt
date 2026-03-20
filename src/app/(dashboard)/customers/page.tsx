@@ -6,15 +6,20 @@ import { Search, UserPlus, Phone, MapPin, ChevronRight } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { formatPhone } from "@/lib/utils/format";
-import { useCompanyId } from "@/hooks/useCompanyId";
 import type { Customer } from "@/types";
 
+const mockCustomers: Customer[] = [
+  { id: "1", companyId: "c1", firstName: "Maria", lastName: "Gonzalez", phone: "5121234567", email: "maria@example.com", address: "1420 Oak Street, Austin TX 78701", equipment: [{ type: "Split AC", brand: "Carrier", model: "24ACC636A", installedYear: 2019 }], createdAt: new Date().toISOString() },
+  { id: "2", companyId: "c1", firstName: "James", lastName: "Whitfield", phone: "5129876543", address: "892 Riverside Dr, Austin TX 78704", createdAt: new Date().toISOString() },
+  { id: "3", companyId: "c1", firstName: "Sandra", lastName: "Kim", phone: "5122345678", address: "3341 Burnet Rd, Austin TX 78756", equipment: [{ type: "Central AC", brand: "Lennox", model: "XC21", installedYear: 2018 }], createdAt: new Date().toISOString() },
+];
+
 export default function CustomersPage() {
-  const { companyId, loading: companyLoading } = useCompanyId();
   const [search, setSearch] = useState("");
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [customers, setCustomers] = useState<Customer[]>(mockCustomers);
+  const [loading, setLoading] = useState(false);
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [resolvedCompanyId, setResolvedCompanyId] = useState<string | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 300);
@@ -22,17 +27,29 @@ export default function CustomersPage() {
   }, [search]);
 
   useEffect(() => {
-    if (!companyId) return;
+    fetch("/api/auth/company", { method: "POST" })
+      .then((r) => r.json())
+      .then((d: { companyId?: string }) => {
+        if (d.companyId) setResolvedCompanyId(d.companyId);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!resolvedCompanyId) return;
     setLoading(true);
     const query = new URLSearchParams({
-      companyId,
+      companyId: resolvedCompanyId,
       ...(debouncedSearch ? { search: debouncedSearch } : {}),
     }).toString();
     fetch(`/api/customers?${query}`)
       .then((r) => r.json())
-      .then((d) => setCustomers(d))
+      .then((d: Customer[] | { error?: string }) => {
+        if (Array.isArray(d) && d.length > 0) setCustomers(d);
+      })
+      .catch(() => {})
       .finally(() => setLoading(false));
-  }, [companyId, debouncedSearch]);
+  }, [resolvedCompanyId, debouncedSearch]);
 
   const filtered = useMemo(() => customers, [customers]);
 
@@ -65,7 +82,7 @@ export default function CustomersPage() {
 
       {/* Customer List */}
       <div className="space-y-3">
-        {(companyLoading || loading) &&
+        {loading &&
           [1, 2, 3].map((i) => (
             <div key={i} className="rounded-[14px] border border-[var(--bg-border)] bg-[var(--bg-surface)] p-4 animate-pulse">
               <div className="h-4 w-1/3 rounded bg-[var(--bg-elevated)] mb-2" />

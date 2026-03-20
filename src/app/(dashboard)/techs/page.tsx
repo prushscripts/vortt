@@ -5,7 +5,6 @@ import { Phone, MapPin, Wrench, CheckCircle, Plus } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { formatPhone } from "@/lib/utils/format";
-import { useCompanyId } from "@/hooks/useCompanyId";
 import type { Tech } from "@/types";
 
 const mockTechs: Tech[] = [
@@ -22,15 +21,21 @@ const skillLabels: Record<string, string> = {
 };
 
 export default function TechsPage() {
-  const { companyId } = useCompanyId();
   const [techs, setTechs] = useState<Tech[]>(mockTechs);
 
   useEffect(() => {
-    if (!companyId) return;
-    fetch(`/api/techs?companyId=${companyId}`)
+    fetch("/api/auth/company", { method: "POST" })
       .then((r) => r.json())
-      .then((d) => setTechs(Array.isArray(d) ? d : []));
-  }, [companyId]);
+      .then(({ companyId: cid }: { companyId?: string }) => {
+        if (!cid) return;
+        return fetch(`/api/techs?companyId=${cid}`)
+          .then((r) => r.json())
+          .then((d: Tech[]) => {
+            if (Array.isArray(d) && d.length > 0) setTechs(d);
+          });
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="space-y-5">

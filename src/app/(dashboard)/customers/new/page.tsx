@@ -43,7 +43,7 @@ const equipmentTypes = [
 ];
 
 export default function NewCustomerPage() {
-  const { companyId } = useCompanyId();
+  const { companyId, loading: companyLoading } = useCompanyId();
   const router = useRouter();
   const [error, setError] = useState("");
 
@@ -61,6 +61,10 @@ export default function NewCustomerPage() {
 
   const onSubmit = async (data: FormData) => {
     setError("");
+    if (!companyId) {
+      setError("Loading company… try again in a moment.");
+      return;
+    }
     try {
       const res = await fetch("/api/customers", {
         method: "POST",
@@ -237,7 +241,7 @@ export default function NewCustomerPage() {
           <Link href="/customers" className="flex-1">
             <Button variant="ghost" fullWidth>Cancel</Button>
           </Link>
-          <Button type="submit" fullWidth loading={isSubmitting}>
+          <Button type="submit" fullWidth loading={isSubmitting} disabled={companyLoading || !companyId}>
             Save Customer
           </Button>
         </div>

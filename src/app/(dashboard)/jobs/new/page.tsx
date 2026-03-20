@@ -43,7 +43,7 @@ const mockTechs = [
 ];
 
 export default function NewJobPage() {
-  const { companyId } = useCompanyId();
+  const { companyId, loading: companyLoading } = useCompanyId();
   const router = useRouter();
   const [error, setError] = useState("");
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -97,6 +97,10 @@ export default function NewJobPage() {
 
   const onSubmit = async (data: FormData) => {
     setError("");
+    if (!companyId) {
+      setError("Loading company… try again in a moment.");
+      return;
+    }
     try {
       const res = await fetch("/api/jobs", {
         method: "POST",
@@ -309,7 +313,7 @@ export default function NewJobPage() {
           <Link href="/jobs" className="flex-1">
             <Button variant="ghost" fullWidth>Cancel</Button>
           </Link>
-          <Button type="submit" fullWidth loading={isSubmitting}>
+          <Button type="submit" fullWidth loading={isSubmitting} disabled={companyLoading || !companyId}>
             Schedule Job
           </Button>
         </div>
