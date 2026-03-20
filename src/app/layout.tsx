@@ -21,9 +21,30 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "VORTT — HVAC Operations",
-  description: "AI-powered dispatch, contracts, and field operations for independent HVAC contractors.",
+  title: "VORTT — AI Operations for HVAC Contractors",
+  description: "AI dispatch, job tracking, and contract management built for 3-15 truck HVAC shops. The smart alternative to ServiceTitan.",
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.svg',
+    shortcut: '/favicon.svg',
+  },
   manifest: "/manifest.json",
+  openGraph: {
+    title: 'VORTT — AI Operations for HVAC Contractors',
+    description: 'AI dispatch, job tracking, and contract management built for HVAC contractors.',
+    url: 'https://vortt.app',
+    siteName: 'VORTT',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'VORTT — AI Operations for HVAC Contractors',
+    description: 'AI dispatch, job tracking, and contract management built for HVAC contractors.',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -36,7 +57,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#080809",
+  themeColor: "#FF6B2B",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

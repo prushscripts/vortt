@@ -15,7 +15,7 @@ echo ========================================
 echo.
 
 :: ── Check git is initialized ────────────────────────────────
-set COMMIT_MSG=feat: about page with features, roadmap, and product overview
+set COMMIT_MSG=feat: custom VORTT favicon and metadata
 git rev-parse --git-dir >nul 2>&1
 if errorlevel 1 (
     echo  [SETUP] Git not initialized. Setting up now...
