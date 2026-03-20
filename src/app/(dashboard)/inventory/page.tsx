@@ -82,7 +82,7 @@ export default function InventoryPage() {
             key={val}
             onClick={() => setFilter(val as typeof filter)}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-              filter === val ? "bg-vortt-charcoal text-white" : "bg-white border border-zinc-200 text-zinc-600 hover:border-zinc-300"
+              filter === val ? "bg-vortt-charcoal text-white border-transparent" : "bg-transparent border border-[var(--bg-border)] text-[var(--text-secondary)] hover:border-[rgba(255,107,43,0.35)]"
             }`}
           >
             {label}

@@ -72,16 +72,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             right: 0,
             height: 2,
             zIndex: 9999,
-            background: "var(--bg-border)",
+            background: "transparent",
           }}
         >
           <div
             style={{
               height: "100%",
-              background: "var(--orange)",
+              background: "linear-gradient(90deg, var(--orange), #FF8C5A)",
               width: `${progress}%`,
-              transition: "width 0.15s ease",
-              boxShadow: "0 0 8px var(--orange-glow)",
+              transition: "width 0.12s ease",
+              boxShadow: "0 0 12px rgba(255,107,43,0.8), 0 0 4px rgba(255,107,43,1)",
+              borderRadius: "0 2px 2px 0",
             }}
           />
         </div>
@@ -90,7 +91,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="md:ml-[220px] flex flex-col min-h-screen">
         <TopBar />
         <main className="flex-1 w-full min-w-0 px-5 py-6 md:px-8 pb-24 md:pb-8">
-          {children}
+          <div key={pathname} className="page-enter" style={{ width: "100%", minHeight: "100%" }}>
+            {children}
+          </div>
         </main>
       </div>
       <BottomNav />

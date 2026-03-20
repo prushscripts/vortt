@@ -12,9 +12,9 @@ interface BadgeProps {
 const variantStyles: Record<BadgeVariant, string> = {
   emergency:   "bg-[rgba(244,63,94,0.15)]   text-[#F43F5E]  border-[rgba(244,63,94,0.25)]",
   high:        "bg-[rgba(255,107,43,0.15)]  text-[#FF6B2B]  border-[rgba(255,107,43,0.25)]",
-  normal:      "bg-white/[0.06]             text-[rgba(248,248,250,0.5)] border-white/[0.08]",
+  normal:      "bg-[rgba(142,142,147,0.15)] text-[rgba(248,248,250,0.5)] border-[rgba(142,142,147,0.25)]",
   completed:   "bg-[rgba(34,197,94,0.12)]   text-[#22C55E]  border-[rgba(34,197,94,0.2)]",
-  cancelled:   "bg-white/[0.04]             text-[rgba(248,248,250,0.3)] border-white/[0.06]",
+  cancelled:   "bg-[rgba(142,142,147,0.12)] text-[rgba(248,248,250,0.3)] border-[rgba(142,142,147,0.2)]",
   scheduled:   "bg-[rgba(59,130,246,0.12)]  text-[#3B82F6]  border-[rgba(59,130,246,0.2)]",
   en_route:    "bg-[rgba(255,107,43,0.12)]  text-[#FF6B2B]  border-[rgba(255,107,43,0.2)]",
   in_progress: "bg-[rgba(245,158,11,0.12)]  text-[#F59E0B]  border-[rgba(245,158,11,0.2)]",

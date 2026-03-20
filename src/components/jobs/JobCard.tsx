@@ -119,6 +119,12 @@ export function JobCard({ job, onSwipeRight, onSwipeLeft, onClick, compact = fal
           borderLeft: `3px solid ${leftAccent.borderLeftColor}`,
           transition: "transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease",
         }}
+        whileHover={{
+          y: -3,
+          boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,107,43,0.15)",
+          transition: { duration: 0.15 },
+        }}
+        whileTap={{ scale: 0.98 }}
         drag={(onSwipeLeft || onSwipeRight) ? "x" : false}
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.15}

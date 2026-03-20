@@ -70,7 +70,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
       {/* Header */}
       <div className="flex items-center gap-3">
         <Link href="/customers">
-          <button className="w-10 h-10 rounded-xl bg-white border border-zinc-200 flex items-center justify-center hover:bg-zinc-50 transition-colors">
+          <button className="w-10 h-10 rounded-xl bg-[var(--bg-elevated)] border border-[var(--bg-border)] flex items-center justify-center hover:bg-[rgba(255,107,43,0.06)] hover:border-[var(--orange)] transition-colors">
             <ArrowLeft className="w-5 h-5 text-zinc-600" />
           </button>
         </Link>

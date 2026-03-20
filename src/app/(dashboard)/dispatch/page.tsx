@@ -213,6 +213,34 @@ export default function DispatchPage() {
             onClick={runAIDispatch}
             loading={loadingAI}
             disabled={unassignedJobs.length === 0}
+            style={{
+              background: "linear-gradient(135deg, var(--orange) 0%, #FF8C42 100%)",
+              color: "white",
+              border: "1px solid rgba(255,107,43,0.5)",
+              borderRadius: 10,
+              height: 44,
+              padding: "0 20px",
+              fontFamily: "Space Grotesk",
+              fontWeight: 700,
+              fontSize: 14,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              boxShadow: "0 4px 20px rgba(255,107,43,0.35), inset 0 1px 0 rgba(255,255,255,0.15)",
+              transition: "all 0.15s ease",
+              letterSpacing: "0.02em",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 8px 32px rgba(255,107,43,0.55), inset 0 1px 0 rgba(255,255,255,0.2)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 4px 20px rgba(255,107,43,0.35), inset 0 1px 0 rgba(255,255,255,0.15)";
+            }}
+            onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.97)")}
+            onMouseUp={(e) => (e.currentTarget.style.transform = "translateY(-2px)")}
           >
             <Sparkles className="w-4 h-4" />
             AI Suggest

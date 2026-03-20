@@ -1,8 +1,8 @@
 "use client";
 
 import { use, useState } from "react";
-import Link from "next/link";
-import { ArrowLeft, Phone, MapPin, Clock, User, CheckCircle, Navigation, AlertTriangle, Camera, DollarSign, Send } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Phone, MapPin, Clock, User, CheckCircle, Navigation, AlertTriangle, Camera, DollarSign, Send } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge, PriorityBadge } from "@/components/ui/Badge";
@@ -48,6 +48,7 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
   const { id } = use(params);
   const [job, setJob] = useState(mockJob);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const router = useRouter();
 
   const currentIdx = STATUS_FLOW.indexOf(job.status as typeof STATUS_FLOW[number]);
   const nextStatus = currentIdx < STATUS_FLOW.length - 1 ? STATUS_FLOW[currentIdx + 1] : null;
@@ -70,11 +71,35 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
     <div className="space-y-5 max-w-2xl">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Link href="/jobs">
-          <button className="w-10 h-10 rounded-xl bg-white border border-zinc-200 flex items-center justify-center hover:bg-zinc-50">
-            <ArrowLeft className="w-5 h-5 text-zinc-600" />
-          </button>
-        </Link>
+        <button
+          onClick={() => router.back()}
+          style={{
+            width: 36,
+            height: 36,
+            background: "var(--bg-elevated)",
+            border: "1px solid var(--bg-border)",
+            borderRadius: 10,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            transition: "all 0.15s ease",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--orange)")}
+          onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--text-secondary)"
+            strokeWidth="2"
+            strokeLinecap="round"
+          >
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
         <div className="flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <StatusBadge status={job.status} />
@@ -95,6 +120,36 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
           loading={updatingStatus}
           onClick={() => handleStatusUpdate(nextStatus)}
           className="text-base"
+          style={{
+            background: "var(--orange)",
+            color: "white",
+            border: "none",
+            borderRadius: 12,
+            height: 52,
+            width: "100%",
+            fontFamily: "Space Grotesk",
+            fontWeight: 700,
+            fontSize: 16,
+            cursor: "pointer",
+            letterSpacing: "0.01em",
+            boxShadow: "0 4px 20px rgba(255,107,43,0.35)",
+            transition: "all 0.15s ease",
+            animation: "glowPulse 2.5s ease-in-out infinite",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "translateY(-2px)";
+            e.currentTarget.style.boxShadow = "0 8px 32px rgba(255,107,43,0.5)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = "0 4px 20px rgba(255,107,43,0.35)";
+          }}
+          onMouseDown={(e) => {
+            e.currentTarget.style.transform = "scale(0.98)";
+          }}
+          onMouseUp={(e) => {
+            e.currentTarget.style.transform = "translateY(-2px)";
+          }}
         >
           {nextStatus === "en_route" && <Navigation className="w-5 h-5" />}
           {nextStatus === "in_progress" && <CheckCircle className="w-5 h-5" />}
@@ -137,7 +192,16 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
             </a>
           )}
           {job.customer?.notes && (
-            <div className="mt-3 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+            <div
+              style={{
+                background: "rgba(255,214,10,0.05)",
+                border: "1px solid var(--bg-border)",
+                borderLeft: "3px solid var(--yellow)",
+                borderRadius: 12,
+                padding: 16,
+                marginTop: 12,
+              }}
+            >
               <p className="text-xs font-semibold text-amber-700 mb-1">Site Notes</p>
               <p className="text-sm text-amber-800">{job.customer.notes}</p>
             </div>
@@ -150,7 +214,15 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
         <Card>
           <CardTitle className="mb-3">Equipment</CardTitle>
           {job.customer.equipment.map((eq, i) => (
-            <div key={i} className="p-3 bg-zinc-50 rounded-xl border border-zinc-100">
+            <div
+              key={i}
+              style={{
+                background: "var(--bg-elevated)",
+                border: "1px solid var(--bg-border)",
+                borderRadius: 12,
+                padding: 16,
+              }}
+            >
               <p className="font-semibold text-sm text-vortt-charcoal">{eq.brand} {eq.type}</p>
               <p className="text-xs text-zinc-500">{eq.model} · {eq.installedYear ? `Installed ${eq.installedYear}` : ""}</p>
               {eq.serial && <p className="text-xs text-zinc-400">SN: {eq.serial}</p>}
@@ -218,7 +290,39 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
               Add Photos
             </Button>
             {!job.invoiceSent && (
-              <Button fullWidth>
+              <Button
+                fullWidth
+                style={{
+                  background: "var(--orange)",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 12,
+                  height: 52,
+                  width: "100%",
+                  fontFamily: "Space Grotesk",
+                  fontWeight: 700,
+                  fontSize: 16,
+                  cursor: "pointer",
+                  letterSpacing: "0.01em",
+                  boxShadow: "0 4px 20px rgba(255,107,43,0.35)",
+                  transition: "all 0.15s ease",
+                  animation: "glowPulse 2.5s ease-in-out infinite",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                  e.currentTarget.style.boxShadow = "0 8px 32px rgba(255,107,43,0.5)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0 4px 20px rgba(255,107,43,0.35)";
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = "scale(0.98)";
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                }}
+              >
                 <Send className="w-4 h-4" />
                 Send Invoice
               </Button>

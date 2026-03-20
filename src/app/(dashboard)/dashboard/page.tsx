@@ -57,7 +57,41 @@ function DashboardBody({ m }: { m: DashboardMetrics }) {
           <h2 className="font-heading font-bold text-2xl text-[#F8F8FA]">Good morning</h2>
         </div>
         <Link href="/dispatch">
-          <Button size="md">Run AI Dispatch</Button>
+          <Button
+            size="md"
+            style={{
+              background: "var(--orange)",
+              color: "white",
+              border: "none",
+              borderRadius: 10,
+              height: 44,
+              padding: "0 20px",
+              fontFamily: "Space Grotesk",
+              fontWeight: 700,
+              fontSize: 14,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              boxShadow: "0 4px 20px rgba(255,107,43,0.4)",
+              animation: "glowPulse 2.5s ease-in-out infinite",
+              transition: "all 0.15s ease",
+              letterSpacing: "0.01em",
+              whiteSpace: "nowrap",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 8px 28px rgba(255,107,43,0.55)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 4px 20px rgba(255,107,43,0.4)";
+            }}
+            onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.97)")}
+            onMouseUp={(e) => (e.currentTarget.style.transform = "translateY(-2px)")}
+          >
+            Run AI Dispatch
+          </Button>
         </Link>
       </div>
 
@@ -148,7 +182,7 @@ function DashboardBody({ m }: { m: DashboardMetrics }) {
         <p className="text-xs font-mono-label text-[rgba(248,248,250,0.38)] uppercase tracking-wider mb-4">Recent Activity</p>
         <div className="space-y-1">
           {m.recentActivity.map((item) => (
-              <div key={item.id} className="flex items-center gap-3 px-3 py-2.5 rounded-[10px] hover:bg-white/[0.03] transition-colors">
+              <div key={item.id} className="flex items-center gap-3 px-3 py-2.5 rounded-[10px] hover:bg-[rgba(255,107,43,0.05)] transition-colors">
                 <span className="text-base w-6 flex-shrink-0">•</span>
                 <p className="flex-1 text-sm text-[rgba(248,248,250,0.65)] min-w-0 truncate">{item.description}</p>
                 <span className="text-xs text-[rgba(248,248,250,0.28)] flex-shrink-0 font-mono-label">{formatRelative(item.timestamp)}</span>

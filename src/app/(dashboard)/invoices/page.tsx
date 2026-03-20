@@ -115,7 +115,7 @@ export default function InvoicesPage() {
             key={f}
             onClick={() => setFilter(f)}
             className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-              filter === f ? "bg-vortt-charcoal text-white" : "bg-white border border-zinc-200 text-zinc-600 hover:border-zinc-300"
+              filter === f ? "bg-vortt-charcoal text-white border-transparent" : "bg-transparent border border-[var(--bg-border)] text-[var(--text-secondary)] hover:border-[rgba(255,107,43,0.35)]"
             }`}
           >
             {f.charAt(0).toUpperCase() + f.slice(1)}

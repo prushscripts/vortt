@@ -71,7 +71,7 @@ const phases: Phase[] = [
 const statusStyles: Record<Phase["status"], string> = {
   completed: "text-[#22C55E] border-[#22C55E]/30 bg-[#22C55E]/10",
   active: "text-[#FF6B2B] border-[#FF6B2B]/30 bg-[#FF6B2B]/10",
-  upcoming: "text-[rgba(248,248,250,0.5)] border-white/10 bg-white/[0.03]",
+  upcoming: "text-[rgba(248,248,250,0.5)] border-[rgba(255,255,255,0.1)] bg-[rgba(255,107,43,0.03)]",
 };
 
 export default function PhasesPage() {
@@ -107,7 +107,7 @@ export default function PhasesPage() {
 
             <div className="space-y-2.5">
               {phase.tasks.map((task) => (
-                <div key={task.label} className="flex items-center justify-between gap-2 rounded-[10px] border border-white/[0.07] bg-white/[0.02] px-3 py-2">
+                <div key={task.label} className="flex items-center justify-between gap-2 rounded-[10px] border border-[var(--bg-border)] bg-[rgba(255,107,43,0.02)] px-3 py-2">
                   <div className="flex items-center gap-2">
                     {task.complete ? (
                       <CheckCircle2 className="h-4 w-4 text-[#22C55E]" />

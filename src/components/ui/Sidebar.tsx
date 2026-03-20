@@ -88,11 +88,23 @@ export function Sidebar() {
             <Link
               key={href}
               href={href}
+              onMouseEnter={(e) => {
+                if (!active) {
+                  e.currentTarget.style.background = "rgba(255,107,43,0.06)";
+                  e.currentTarget.style.color = "var(--text-primary)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!active) {
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.color = "var(--text-secondary)";
+                }
+              }}
               className={cn(
                 "group flex min-h-[44px] items-center gap-[10px] rounded-[10px] px-3 transition-all duration-150",
                 active
-                  ? "bg-[var(--orange-dim)] text-[var(--text-primary)] border-l-2 border-l-[var(--orange)]"
-                  : "text-[var(--text-secondary)] hover:bg-white/[0.04]"
+                  ? "bg-[var(--orange-dim)] text-[var(--text-primary)] border-l-2 border-l-[var(--orange)] shadow-[inset_0_0_0_1px_rgba(255,107,43,0.3)]"
+                  : "text-[var(--text-secondary)] hover:bg-[rgba(255,107,43,0.06)]"
               )}
             >
               <span className={cn("flex-shrink-0", active ? "text-[var(--orange)]" : "text-[var(--text-secondary)]")}>
@@ -123,7 +135,7 @@ export function Sidebar() {
       <div className="px-3 pb-4 space-y-0.5" style={{ borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: "12px" }}>
         <Link
           href="/settings"
-          className="flex items-center gap-3 px-3 py-2 rounded-[10px] hover:bg-white/[0.04] transition-all min-h-[40px] group"
+          className="flex items-center gap-3 px-3 py-2 rounded-[10px] hover:bg-[rgba(255,107,43,0.06)] transition-all min-h-[40px] group"
         >
           <Settings className="w-4 h-4 flex-shrink-0 text-[rgba(248,248,250,0.38)] group-hover:text-[rgba(248,248,250,0.65)]" />
           <span className="text-sm font-medium text-[rgba(248,248,250,0.5)] group-hover:text-[rgba(248,248,250,0.8)]">
@@ -132,7 +144,7 @@ export function Sidebar() {
         </Link>
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-3 w-full px-3 py-2 rounded-[10px] hover:bg-white/[0.04] transition-all min-h-[40px] group"
+          className="flex items-center gap-3 w-full px-3 py-2 rounded-[10px] hover:bg-[rgba(255,107,43,0.06)] transition-all min-h-[40px] group"
         >
           <LogOut className="w-4 h-4 flex-shrink-0 text-[rgba(248,248,250,0.38)] group-hover:text-[rgba(248,248,250,0.65)]" />
           <span className="text-sm font-medium text-[rgba(248,248,250,0.5)] group-hover:text-[rgba(248,248,250,0.8)]">

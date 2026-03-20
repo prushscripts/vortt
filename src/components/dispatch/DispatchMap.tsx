@@ -157,11 +157,11 @@ function FallbackMap({ techs, jobs, assignments, selectedJobId }: DispatchMapPro
     <div className="w-full h-full bg-[#1C1C1F] flex flex-col">
       {/* Map placeholder header */}
       <div className="absolute top-4 left-4 right-4 z-10 flex items-center justify-between">
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-sm border border-zinc-200">
+        <div className="bg-[rgba(17,17,22,0.9)] backdrop-blur-sm rounded-xl px-4 py-2 shadow-sm border border-zinc-200">
           <p className="text-xs font-semibold text-zinc-500">Live Dispatch Map</p>
           <p className="text-xs text-zinc-400">Add Google Maps API key to activate</p>
         </div>
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2 shadow-sm border border-zinc-200">
+        <div className="bg-[rgba(17,17,22,0.9)] backdrop-blur-sm rounded-xl px-3 py-2 shadow-sm border border-zinc-200">
           <div className="flex items-center gap-3 text-xs">
             <div className="flex items-center gap-1">
               <div className="w-2.5 h-2.5 rounded-full bg-vortt-red" />
@@ -221,7 +221,7 @@ function FallbackMap({ techs, jobs, assignments, selectedJobId }: DispatchMapPro
                   {tech.name.split(" ").map(n => n[0]).join("")}
                 </div>
                 <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                  <span className="text-[10px] font-semibold text-zinc-600 bg-white/80 px-1 rounded">
+                  <span className="text-[10px] font-semibold text-zinc-600 bg-[rgba(17,17,22,0.8)] px-1 rounded">
                     {tech.name.split(" ")[0]}
                   </span>
                 </div>

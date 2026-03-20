@@ -49,7 +49,7 @@ export function BottomSheet({ open, onClose, title, children, className }: Botto
               )}
               <button
                 onClick={onClose}
-                className="ml-auto p-1.5 rounded-lg transition-colors hover:bg-white/[0.06]"
+                className="ml-auto p-1.5 rounded-lg transition-colors hover:bg-[rgba(255,107,43,0.06)]"
               >
                 <X className="w-4 h-4 text-[rgba(248,248,250,0.5)]" />
               </button>

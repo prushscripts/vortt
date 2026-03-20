@@ -134,3 +134,64 @@ h1, h2, h3, h4, h5, h6 {
   from { opacity: 0; transform: scale(0.96); }
   to { opacity: 1; transform: scale(1); }
 }
+
+/* Every clickable thing shows a pointer */
+button, a, [role="button"], [onClick] {
+  cursor: pointer;
+}
+
+/* Global button base feel */
+button {
+  transition: transform 0.12s ease, box-shadow 0.12s ease,
+              background 0.15s ease, opacity 0.15s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0px) scale(0.98);
+}
+
+/* Orange buttons specifically */
+button[data-variant="primary"] {
+  box-shadow: 0 4px 16px rgba(255, 107, 43, 0.3);
+}
+
+button[data-variant="primary"]:hover {
+  box-shadow: 0 6px 24px rgba(255, 107, 43, 0.45);
+  transform: translateY(-2px);
+}
+
+button[data-variant="primary"]:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 8px rgba(255, 107, 43, 0.3);
+}
+
+/* All interactive cards */
+a[href], .clickable {
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease,
+              box-shadow 0.15s ease;
+}
+
+/* Smooth page entry */
+.page-enter {
+  animation: pageEnter 0.2s ease forwards;
+}
+
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Orange glow pulse for primary CTAs */
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 4px 16px rgba(255,107,43,0.3); }
+  50%       { box-shadow: 0 4px 28px rgba(255,107,43,0.55); }
+}
+
+.glow-pulse {
+  animation: glowPulse 2.5s ease-in-out infinite;
+}

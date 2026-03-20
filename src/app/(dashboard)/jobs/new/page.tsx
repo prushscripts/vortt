@@ -124,7 +124,7 @@ export default function NewJobPage() {
     <div className="space-y-5 max-w-2xl">
       <div className="flex items-center gap-3">
         <Link href="/jobs">
-          <button className="w-10 h-10 rounded-xl bg-white border border-zinc-200 flex items-center justify-center hover:bg-zinc-50 transition-colors">
+          <button className="w-10 h-10 rounded-xl bg-[var(--bg-elevated)] border border-[var(--bg-border)] flex items-center justify-center hover:bg-[rgba(255,107,43,0.06)] hover:border-[var(--orange)] transition-colors">
             <ArrowLeft className="w-5 h-5 text-zinc-600" />
           </button>
         </Link>
@@ -227,7 +227,7 @@ export default function NewJobPage() {
                     type="number"
                     value={quoteAdjusted?.quoteLow ?? ""}
                     onChange={(e) => setQuoteAdjusted(prev => ({ ...prev, quoteLow: parseFloat(e.target.value) }))}
-                    className="w-full h-10 px-3 rounded-xl border border-orange-200 bg-white text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-vortt-orange"
+                    className="w-full h-10 px-3 rounded-xl border border-[var(--bg-border)] bg-[var(--bg-elevated)] text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-vortt-orange"
                   />
                 </div>
                 <div>
@@ -236,7 +236,7 @@ export default function NewJobPage() {
                     type="number"
                     value={quoteAdjusted?.quoteHigh ?? ""}
                     onChange={(e) => setQuoteAdjusted(prev => ({ ...prev, quoteHigh: parseFloat(e.target.value) }))}
-                    className="w-full h-10 px-3 rounded-xl border border-orange-200 bg-white text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-vortt-orange"
+                    className="w-full h-10 px-3 rounded-xl border border-[var(--bg-border)] bg-[var(--bg-elevated)] text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-vortt-orange"
                   />
                 </div>
               </div>
