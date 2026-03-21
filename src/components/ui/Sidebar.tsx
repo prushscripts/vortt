@@ -187,10 +187,23 @@ const mobileNavItems = [
   { href: "/dashboard", label: "More",      icon: "dashboard" },
 ];
 
+const moreNavItems = [
+  { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
+  { href: "/phases", label: "Phases", icon: "phases" },
+  { href: "/about", label: "About", icon: "about" },
+  { href: "/contracts", label: "Contracts", icon: "contracts" },
+  { href: "/inventory", label: "Inventory", icon: "inventory" },
+  { href: "/invoices", label: "Invoices", icon: "invoices" },
+  { href: "/techs", label: "Techs", icon: "techs" },
+  { href: "/settings", label: "Settings", icon: "dashboard" },
+];
+
 export function BottomNav() {
   const pathname = usePathname();
+  const [showMore, setShowMore] = useState(false);
 
   return (
+    <>
     <nav
       className="md:hidden fixed bottom-0 left-0 right-0 z-30 pb-safe"
       style={{
@@ -199,7 +212,7 @@ export function BottomNav() {
       }}
     >
       <div className="flex items-stretch">
-        {mobileNavItems.map(({ href, label, icon }) => {
+        {mobileNavItems.slice(0, 3).map(({ href, label, icon }) => {
           const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
           return (
             <Link
@@ -221,7 +234,78 @@ export function BottomNav() {
             </Link>
           );
         })}
+        <button
+          onClick={() => setShowMore(true)}
+          className="flex-1 flex flex-col items-center justify-center py-3 gap-1 min-h-[60px] transition-colors"
+        >
+          <span className="leading-none text-[var(--text-secondary)]">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <circle cx="12" cy="12" r="1"/>
+              <circle cx="12" cy="5" r="1"/>
+              <circle cx="12" cy="19" r="1"/>
+            </svg>
+          </span>
+          <span className="text-[10px] font-medium font-mono-label text-[rgba(248,248,250,0.38)]">
+            More
+          </span>
+        </button>
       </div>
     </nav>
+
+    {showMore && (
+      <>
+        <div onClick={() => setShowMore(false)} style={{
+          position:'fixed', inset:0, zIndex:100,
+          background:'rgba(0,0,0,0.5)',
+          backdropFilter:'blur(4px)',
+        }}/>
+        
+        <div style={{
+          position:'fixed', bottom:0, left:0, right:0,
+          zIndex:101,
+          background:'var(--bg-surface)',
+          borderTop:'1px solid var(--bg-border)',
+          borderRadius:'20px 20px 0 0',
+          padding:'12px 0 32px',
+          animation:'slideUp 0.25s ease',
+        }}>
+          <div style={{
+            width:40, height:4, borderRadius:2,
+            background:'var(--bg-border)',
+            margin:'0 auto 16px',
+          }}/>
+
+          <div style={{
+            display:'grid', gridTemplateColumns:'1fr 1fr',
+            gap:2, padding:'0 8px',
+          }}>
+            {moreNavItems.map(item => (
+              <Link key={item.href} href={item.href}
+                onClick={() => setShowMore(false)}
+                style={{
+                  display:'flex', alignItems:'center', gap:12,
+                  padding:'14px 16px', borderRadius:12,
+                  textDecoration:'none',
+                  color: pathname === item.href 
+                    ? 'var(--orange)' 
+                    : 'var(--text-secondary)',
+                  background: pathname === item.href
+                    ? 'var(--orange-dim)' : 'transparent',
+                }}
+              >
+                <span style={{width:20,height:20,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  <NavGlyph type={item.icon} />
+                </span>
+                <span style={{
+                  fontFamily:'Space Grotesk', fontWeight:600,
+                  fontSize:15,
+                }}>{item.label}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </>
+    )}
+    </>
   );
 }

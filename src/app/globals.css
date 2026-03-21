@@ -207,6 +207,11 @@ a[href], .clickable {
   50%       { box-shadow: 0 4px 28px rgba(255,107,43,0.55); }
 }
 
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
 .glow-pulse {
   animation: glowPulse 2.5s ease-in-out infinite;
 }

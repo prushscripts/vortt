@@ -206,18 +206,47 @@ function DashboardPageInner() {
   const [metricsLoaded, setMetricsLoaded] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const [userName, setUserName] = useState<string>('');
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [showBetaBanner, setShowBetaBanner] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => {
       if (data?.user) {
-        const name = data.user.user_metadata?.company_name || 
-                     data.user.email?.split('@')[0] || '';
+        const meta = data.user.user_metadata;
+        let name = '';
+        
+        if (meta?.first_name) {
+          name = meta.first_name;
+        } else if (meta?.full_name) {
+          name = meta.full_name.split(' ')[0];
+        } else if (data.user.email) {
+          const prefix = data.user.email.split('@')[0];
+          name = prefix.charAt(0).toUpperCase() + prefix.slice(1, 12);
+        }
+        
         setUserName(name);
       }
     });
   }, []);
+
+  useEffect(() => {
+    const seen = localStorage.getItem('vortt_welcome_seen');
+    if (!seen) {
+      setShowWelcome(true);
+    } else {
+      const bannerDismissed = localStorage.getItem('vortt_beta_banner_dismissed');
+      if (!bannerDismissed) setShowBetaBanner(true);
+    }
+  }, []);
+
+  const dismissWelcome = () => {
+    localStorage.setItem('vortt_welcome_seen', 'true');
+    setShowWelcome(false);
+    const bannerDismissed = localStorage.getItem('vortt_beta_banner_dismissed');
+    if (!bannerDismissed) setShowBetaBanner(true);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -302,6 +331,236 @@ function DashboardPageInner() {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {showWelcome && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 9998,
+          background: 'rgba(14,14,16,0.97)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '20px',
+          animation: 'fadeIn 0.3s ease',
+        }}>
+          <div style={{
+            maxWidth: 520, width: '100%',
+            background: 'var(--bg-surface)',
+            border: '1px solid rgba(255,107,43,0.2)',
+            borderRadius: 24,
+            padding: '40px 36px',
+            position: 'relative',
+            boxShadow: '0 0 80px rgba(255,107,43,0.08)',
+          }}>
+            <button onClick={dismissWelcome} style={{
+              position: 'absolute', top: 16, right: 16,
+              width: 32, height: 32, borderRadius: 8,
+              background: 'var(--bg-elevated)',
+              border: '1px solid var(--bg-border)',
+              color: 'var(--text-muted)', fontSize: 18,
+              cursor: 'pointer', display: 'flex',
+              alignItems: 'center', justifyContent: 'center',
+              lineHeight: 1,
+            }}>×</button>
+
+            <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+              <div style={{
+                width: 44, height: 44, borderRadius: 12,
+                background: 'var(--orange)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 0 24px rgba(255,107,43,0.4)',
+              }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                </svg>
+              </div>
+              <span style={{
+                fontFamily:'Space Grotesk', fontWeight:800,
+                fontSize:22, color:'var(--text-primary)',
+              }}>VORTT</span>
+              <div style={{
+                background:'rgba(255,107,43,0.12)',
+                border:'1px solid rgba(255,107,43,0.3)',
+                borderRadius:6, padding:'3px 10px',
+              }}>
+                <span style={{
+                  color:'var(--orange)', fontSize:11,
+                  fontWeight:700, textTransform:'uppercase',
+                  letterSpacing:'0.08em',
+                }}>Early Beta</span>
+              </div>
+            </div>
+
+            <h2 style={{
+              fontFamily:'Space Grotesk', fontWeight:800,
+              fontSize:26, color:'var(--text-primary)',
+              margin:'0 0 12px', lineHeight:1.2,
+              letterSpacing:'-0.02em',
+            }}>
+              Welcome to VORTT
+            </h2>
+
+            <p style={{
+              color:'var(--text-secondary)', fontSize:15,
+              lineHeight:1.6, margin:'0 0 24px',
+            }}>
+              VORTT is an AI operations platform built for small HVAC 
+              contractors. It handles dispatch, job tracking, maintenance 
+              contracts, inventory, and invoicing — all from your phone.
+            </p>
+
+            <div style={{
+              background:'rgba(255,214,10,0.06)',
+              border:'1px solid rgba(255,214,10,0.2)',
+              borderRadius:12, padding:'14px 16px',
+              marginBottom:24,
+              display:'flex', gap:12, alignItems:'flex-start',
+            }}>
+              <div style={{
+                width:20, height:20, borderRadius:'50%',
+                background:'rgba(255,214,10,0.15)',
+                border:'1px solid rgba(255,214,10,0.3)',
+                display:'flex', alignItems:'center', justifyContent:'center',
+                flexShrink:0, marginTop:1,
+              }}>
+                <span style={{fontSize:11, color:'var(--yellow)'}}>!</span>
+              </div>
+              <div>
+                <p style={{
+                  fontFamily:'Space Grotesk', fontWeight:700,
+                  fontSize:13, color:'var(--yellow)',
+                  margin:'0 0 4px',
+                }}>You're using an early beta version</p>
+                <p style={{
+                  fontSize:13, color:'var(--text-secondary)',
+                  margin:0, lineHeight:1.5,
+                }}>
+                  Some features are still being built. Any names or data 
+                  you see that aren't yours are placeholder examples — 
+                  your real data is separate and private. Please report 
+                  anything that seems off.
+                </p>
+              </div>
+            </div>
+
+            <p style={{
+              fontFamily:'Space Grotesk', fontWeight:700,
+              fontSize:13, color:'var(--text-muted)',
+              textTransform:'uppercase', letterSpacing:'0.08em',
+              margin:'0 0 12px',
+            }}>TO GET STARTED</p>
+
+            {[
+              'Add your technicians under the Techs tab',
+              'Add your first customer',
+              'Create a job and assign it to a tech',
+            ].map((step, i) => (
+              <div key={i} style={{
+                display:'flex', gap:12, alignItems:'center',
+                padding:'10px 0',
+                borderBottom: i < 2 ? '1px solid var(--bg-border)' : 'none',
+              }}>
+                <div style={{
+                  width:24, height:24, borderRadius:'50%', flexShrink:0,
+                  background:'rgba(255,107,43,0.12)',
+                  border:'1px solid rgba(255,107,43,0.25)',
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                }}>
+                  <span style={{
+                    fontFamily:'Space Grotesk', fontWeight:700,
+                    fontSize:12, color:'var(--orange)',
+                  }}>{i+1}</span>
+                </div>
+                <span style={{fontSize:14, color:'var(--text-secondary)'}}>
+                  {step}
+                </span>
+              </div>
+            ))}
+
+            <div style={{
+              marginTop:24, padding:'14px 16px',
+              background:'var(--bg-elevated)',
+              border:'1px solid var(--bg-border)',
+              borderRadius:12,
+              display:'flex', alignItems:'center',
+              justifyContent:'space-between', gap:12,
+            }}>
+              <div>
+                <p style={{
+                  fontFamily:'Space Grotesk', fontWeight:600,
+                  fontSize:13, color:'var(--text-primary)', margin:0,
+                }}>Found something broken?</p>
+                <p style={{
+                  fontSize:12, color:'var(--text-muted)', margin:'2px 0 0',
+                }}>Your feedback directly shapes what gets built next.</p>
+              </div>
+              <a href="/settings" onClick={dismissWelcome} style={{
+                background:'var(--orange)', color:'white',
+                borderRadius:8, padding:'8px 16px',
+                fontFamily:'Space Grotesk', fontWeight:600,
+                fontSize:13, textDecoration:'none', flexShrink:0,
+                boxShadow:'0 4px 12px rgba(255,107,43,0.3)',
+              }}>Feedback</a>
+            </div>
+
+            <button onClick={dismissWelcome} style={{
+              width:'100%', height:52, marginTop:16,
+              background:'var(--orange)', border:'none',
+              borderRadius:12, color:'white',
+              fontFamily:'Space Grotesk', fontWeight:700,
+              fontSize:16, cursor:'pointer',
+              boxShadow:'0 4px 20px rgba(255,107,43,0.35)',
+              transition:'all 0.15s ease',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 8px 28px rgba(255,107,43,0.5)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 4px 20px rgba(255,107,43,0.35)';
+            }}
+            >
+              Take me to my dashboard →
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showBetaBanner && (
+        <div style={{
+          background:'rgba(255,214,10,0.06)',
+          border:'1px solid rgba(255,214,10,0.15)',
+          borderRadius:12, padding:'10px 16px',
+          marginBottom:20,
+          display:'flex', alignItems:'center',
+          gap:10, justifyContent:'space-between',
+        }}>
+          <div style={{display:'flex',alignItems:'center',gap:10}}>
+            <div style={{
+              width:6,height:6,borderRadius:'50%',
+              background:'var(--yellow)',flexShrink:0,
+            }}/>
+            <span style={{fontSize:13,color:'var(--text-secondary)'}}>
+              <strong style={{color:'var(--yellow)'}}>Early Beta</strong>
+              {' '}— some features are still being built. 
+              <a href="/settings" style={{
+                color:'var(--orange)',marginLeft:6,textDecoration:'none',
+                fontWeight:600,
+              }}>Send feedback →</a>
+            </span>
+          </div>
+          <button
+            onClick={() => {
+              localStorage.setItem('vortt_beta_banner_dismissed','true');
+              setShowBetaBanner(false);
+            }}
+            style={{
+              background:'transparent',border:'none',
+              color:'var(--text-muted)',fontSize:16,
+              cursor:'pointer',padding:'0 4px',flexShrink:0,
+            }}
+          >×</button>
+        </div>
+      )}
+
       {!metricsLoaded ? (
         <div className="space-y-6">
           {[0, 1, 2].map((i) => (

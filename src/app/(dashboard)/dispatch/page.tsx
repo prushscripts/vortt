@@ -9,57 +9,6 @@ import { DispatchMap } from "@/components/dispatch/DispatchMap";
 import { formatDateTime } from "@/lib/utils/format";
 import type { Job, Tech, DispatchSuggestion } from "@/types";
 
-// Mock techs with current locations
-const mockTechs: Tech[] = [
-  { id: "t1", companyId: "c1", name: "Jake Torres", phone: "5120001111", skills: ["refrigerant_certified", "electrical"], isActive: true, lat: 30.2729, lng: -97.7444, lastSeen: new Date().toISOString(), createdAt: new Date().toISOString() },
-  { id: "t2", companyId: "c1", name: "Marcus Webb", phone: "5120002222", skills: ["electrical"], isActive: true, lat: 30.2951, lng: -97.7532, lastSeen: new Date().toISOString(), createdAt: new Date().toISOString() },
-  { id: "t3", companyId: "c1", name: "Devon Hall", phone: "5120003333", skills: ["refrigerant_certified"], isActive: true, lat: 30.2612, lng: -97.7261, lastSeen: new Date().toISOString(), createdAt: new Date().toISOString() },
-  { id: "t4", companyId: "c1", name: "Riley Chen", phone: "5120004444", skills: ["electrical", "commercial"], isActive: true, lat: 30.3121, lng: -97.7651, lastSeen: new Date().toISOString(), createdAt: new Date().toISOString() },
-];
-
-const mockJobs: Job[] = [
-  {
-    id: "j1", companyId: "c1", customerId: "c1", jobType: "emergency", status: "scheduled", priority: "emergency",
-    scheduledAt: new Date().toISOString(),
-    description: "Complete AC failure — 95°F inside. Elderly resident.",
-    photos: [], invoiceSent: false, reviewSent: false, createdAt: new Date().toISOString(),
-    customer: { id: "c1", companyId: "c1", firstName: "Sandra", lastName: "Kim", phone: "5122345678", address: "3341 Burnet Rd, Austin TX 78756", lat: 30.3012, lng: -97.7389, createdAt: new Date().toISOString() },
-  },
-  {
-    id: "j2", companyId: "c1", customerId: "c2", jobType: "repair", status: "scheduled", priority: "high",
-    scheduledAt: new Date(Date.now() + 1000 * 60 * 60).toISOString(),
-    description: "Heat pump not switching to cooling mode",
-    photos: [], invoiceSent: false, reviewSent: false, createdAt: new Date().toISOString(),
-    customer: { id: "c2", companyId: "c1", firstName: "James", lastName: "Whitfield", phone: "5129876543", address: "892 Riverside Dr, Austin TX 78704", lat: 30.2501, lng: -97.7620, createdAt: new Date().toISOString() },
-  },
-  {
-    id: "j3", companyId: "c1", customerId: "c3", jobType: "maintenance", status: "scheduled", priority: "normal",
-    scheduledAt: new Date(Date.now() + 1000 * 60 * 60 * 2).toISOString(),
-    description: "Annual maintenance + filter replacement",
-    photos: [], invoiceSent: false, reviewSent: false, createdAt: new Date().toISOString(),
-    customer: { id: "c3", companyId: "c1", firstName: "Maria", lastName: "Gonzalez", phone: "5121234567", address: "1420 Oak Street, Austin TX 78701", lat: 30.2695, lng: -97.7420, createdAt: new Date().toISOString() },
-  },
-  {
-    id: "j4", companyId: "c1", customerId: "c4", jobType: "repair", status: "scheduled", priority: "normal",
-    scheduledAt: new Date(Date.now() + 1000 * 60 * 60 * 3).toISOString(),
-    description: "Thermostat not responding — possible wiring issue",
-    photos: [], invoiceSent: false, reviewSent: false, createdAt: new Date().toISOString(),
-    customer: { id: "c4", companyId: "c1", firstName: "Robert", lastName: "Chen", phone: "5123456789", address: "4210 South Lamar, Austin TX 78704", lat: 30.2388, lng: -97.7703, createdAt: new Date().toISOString() },
-  },
-];
-
-// Jobs that are already assigned
-const assignedJobs: Job[] = [
-  {
-    id: "j5", companyId: "c1", customerId: "c5", techId: "t1", jobType: "install", status: "in_progress", priority: "normal",
-    scheduledAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
-    description: "New 5-ton Carrier install",
-    photos: [], invoiceSent: false, reviewSent: false, createdAt: new Date().toISOString(),
-    customer: { id: "c5", companyId: "c1", firstName: "Lisa", lastName: "Morales", phone: "5124567890", address: "7890 North Loop, Austin TX 78756", lat: 30.3211, lng: -97.7512, createdAt: new Date().toISOString() },
-    tech: mockTechs[0],
-  },
-];
-
 interface SuggestionCard {
   suggestion: DispatchSuggestion;
   job: Job;
@@ -101,12 +50,7 @@ export default function DispatchPage() {
   }, []);
 
   const unassignedJobs = jobs.filter((j) => !j.techId && !assignments.has(j.id));
-  const allJobs = [...assignedJobs, ...jobs.map(j => ({
-    ...j,
-    techId: assignments.get(j.id),
-    tech: assignments.has(j.id) ? techs.find(t => t.id === assignments.get(j.id)) : undefined,
-    status: assignments.has(j.id) ? "scheduled" as const : j.status,
-  }))];
+  const inProgressJobs = jobs.filter((j) => j.status === "in_progress");
 
   const runAIDispatch = async () => {
     setLoadingAI(true);
@@ -200,7 +144,7 @@ export default function DispatchPage() {
   const statusGroups = [
     { label: "Unassigned", jobs: unassignedJobs, color: "text-vortt-red" },
     { label: "Assigned", jobs: jobs.filter(j => assignments.has(j.id)), color: "text-vortt-green" },
-    { label: "In Progress", jobs: assignedJobs.filter(j => j.status === "in_progress"), color: "text-vortt-orange" },
+    { label: "In Progress", jobs: inProgressJobs, color: "text-vortt-orange" },
   ];
 
   return (
@@ -331,7 +275,7 @@ export default function DispatchPage() {
             ))}
           </div>
         )}
-        {dataLoaded && unassignedJobs.length === 0 && jobs.filter(j => assignments.has(j.id)).length === 0 && assignedJobs.filter(j => j.status === "in_progress").length === 0 && (
+        {dataLoaded && unassignedJobs.length === 0 && jobs.filter(j => assignments.has(j.id)).length === 0 && inProgressJobs.length === 0 && (
           <div style={{
             padding: '40px 20px', textAlign: 'center',
             border: '1px dashed var(--bg-border)', borderRadius: 14
@@ -430,7 +374,7 @@ export default function DispatchPage() {
       <div className="flex-1 relative min-h-[400px] lg:min-h-0 rounded-2xl overflow-hidden bg-[#1C1C1F]">
         <DispatchMap
           techs={techs}
-          jobs={allJobs}
+          jobs={jobs}
           selectedJobId={selectedJob?.id}
           assignments={assignments}
         />
