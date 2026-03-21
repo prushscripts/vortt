@@ -216,6 +216,17 @@ function DashboardPageInner() {
   }, []);
 
   useEffect(() => {
+    if (showWelcome) {
+      document.body.classList.add('overlay-open');
+    } else {
+      document.body.classList.remove('overlay-open');
+    }
+    return () => {
+      document.body.classList.remove('overlay-open');
+    };
+  }, [showWelcome]);
+
+  useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => {
       if (data?.user) {
@@ -353,30 +364,50 @@ function DashboardPageInner() {
   return (
     <div className="space-y-6 animate-fade-in">
       {showWelcome && (
-        <div style={{
-          position: 'fixed', inset: 0, zIndex: 10000,
-          background: 'rgba(14,14,16,0.97)',
-          backdropFilter: 'blur(8px)',
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'center',
-          padding: '16px 16px 32px',
-          overflowY: 'auto',
-          WebkitOverflowScrolling: 'touch',
-          animation: 'fadeIn 0.3s ease',
-          isolation: 'isolate',
-        }}>
-          <div className="welcome-card" style={{
-            maxWidth: 520, width: '100%',
-            background: 'var(--bg-surface)',
-            border: '1px solid rgba(255,107,43,0.2)',
-            borderRadius: 24,
-            padding: '32px 24px',
-            position: 'relative',
-            boxShadow: '0 0 80px rgba(255,107,43,0.08)',
-            marginTop: 'auto',
-            marginBottom: 'auto',
-          }}>
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            zIndex: 10000,
+            background: 'rgba(14,14,16,0.95)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+            boxSizing: 'border-box',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              maxWidth: 480,
+              maxHeight: 'calc(100vh - 40px)',
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              WebkitOverflowScrolling: 'touch',
+              borderRadius: 24,
+              scrollbarWidth: 'none',
+            }}
+          >
+            <div
+              className="welcome-card"
+              style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid rgba(255,107,43,0.2)',
+                borderRadius: 24,
+                padding: '32px 24px',
+                position: 'relative',
+                boxShadow: '0 0 80px rgba(255,107,43,0.08), 0 24px 64px rgba(0,0,0,0.6)',
+              }}
+            >
             <button onClick={dismissWelcome} style={{
               position: 'absolute', top: 16, right: 16,
               width: 32, height: 32, borderRadius: 8,
@@ -519,13 +550,20 @@ function DashboardPageInner() {
                   fontSize:12, color:'var(--text-muted)', margin:'2px 0 0',
                 }}>Your feedback directly shapes what gets built next.</p>
               </div>
-              <a href="/settings" onClick={dismissWelcome} style={{
-                background:'var(--orange)', color:'white',
-                borderRadius:8, padding:'8px 16px',
-                fontFamily:'Space Grotesk', fontWeight:600,
-                fontSize:13, textDecoration:'none', flexShrink:0,
-                boxShadow:'0 4px 12px rgba(255,107,43,0.3)',
-              }}>Feedback</a>
+              <button
+                onClick={() => {
+                  dismissWelcome();
+                  router.push('/feedback');
+                }}
+                style={{
+                  background:'var(--orange)', color:'white',
+                  borderRadius:8, padding:'8px 16px',
+                  fontFamily:'Space Grotesk', fontWeight:600,
+                  fontSize:13, textDecoration:'none', flexShrink:0,
+                  boxShadow:'0 4px 12px rgba(255,107,43,0.3)',
+                  border:'none', cursor:'pointer',
+                }}
+              >Give Feedback</button>
             </div>
 
             <button onClick={handleGetStarted} style={{
@@ -548,6 +586,7 @@ function DashboardPageInner() {
             >
               Take me to my dashboard →
             </button>
+            </div>
           </div>
         </div>
       )}
@@ -617,7 +656,7 @@ function DashboardPageInner() {
             <span style={{fontSize:13,color:'var(--text-secondary)'}}>
               <strong style={{color:'var(--yellow)'}}>Early Beta</strong>
               {' '}— some features are still being built. 
-              <a href="/settings" style={{
+              <a href="/feedback" style={{
                 color:'var(--orange)',marginLeft:6,textDecoration:'none',
                 fontWeight:600,
               }}>Send feedback →</a>

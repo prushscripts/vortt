@@ -241,6 +241,18 @@ a[href], .clickable {
   }
 }
 
+/* Hide scrollbar on webkit for welcome overlay */
+.welcome-card::-webkit-scrollbar { 
+  display: none; 
+}
+
+/* Prevent body scroll when overlay is open */
+body.overlay-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
 .glow-pulse {
   animation: glowPulse 2.5s ease-in-out infinite;
 }
