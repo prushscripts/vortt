@@ -365,35 +365,34 @@ function DashboardPageInner() {
     <div className="space-y-6 animate-fade-in">
 {/* Welcome Overlay */}
       {mounted && showWelcome && !showDashboardTransition && (
-        <div style={{
+        <div className="welcome-overlay" style={{
           position: 'fixed',
-          top: 0, left: 0,
-          width: '100vw',
-          height: '100vh',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
           zIndex: 10000,
           background: 'rgba(14,14,16,0.96)',
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
-          overflowY: 'scroll',
+          overflowY: 'auto',
           WebkitOverflowScrolling: 'touch',
-          padding: '20px 16px',
-          boxSizing: 'border-box',
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'center',
+          paddingTop: 20,
+          paddingBottom: 100,
+          paddingLeft: 16,
+          paddingRight: 16,
+          boxSizing: 'border-box' as const,
         }}>
           <div style={{
             width: '100%',
             maxWidth: 480,
-            marginTop: 'auto',
-            marginBottom: 'auto',
+            margin: '0 auto',
             background: 'var(--bg-surface)',
             border: '1px solid rgba(255,107,43,0.2)',
             borderRadius: 24,
             padding: '28px 22px',
             position: 'relative',
             boxShadow: '0 0 80px rgba(255,107,43,0.08)',
-            flexShrink: 0,
           }}>
             <button onClick={dismissWelcome} style={{
               position: 'absolute', top: 14, right: 14,

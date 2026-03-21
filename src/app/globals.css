@@ -253,6 +253,12 @@ body.overlay-open {
   width: 100%;
 }
 
+/* Ensure overlay scrolls on iOS */
+.welcome-overlay {
+  -webkit-overflow-scrolling: touch;
+  overflow-y: scroll !important;
+}
+
 .glow-pulse {
   animation: glowPulse 2.5s ease-in-out infinite;
 }
