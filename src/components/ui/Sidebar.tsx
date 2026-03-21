@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Zap, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { createClient } from "@/lib/supabase/client";
+import { LogoutModal } from "@/components/ui/LogoutModal";
 
 const navItems = [
   { href: "/dashboard",  label: "Dashboard",  icon: "dashboard" },
@@ -54,12 +55,7 @@ export function Sidebar() {
   const router = useRouter();
   const supabase = createClient();
   const [hoveredPath, setHoveredPath] = useState<string | null>(null);
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-    router.refresh();
-  };
+  const [showLogout, setShowLogout] = useState(false);
 
   return (
     <aside
@@ -166,7 +162,7 @@ export function Sidebar() {
           </span>
         </Link>
         <button
-          onClick={handleSignOut}
+          onClick={() => setShowLogout(true)}
           className="flex items-center gap-3 w-full px-3 py-2 rounded-[10px] hover:bg-[rgba(255,107,43,0.06)] transition-all min-h-[40px] group"
         >
           <LogOut className="w-4 h-4 flex-shrink-0 text-[rgba(248,248,250,0.38)] group-hover:text-[rgba(248,248,250,0.65)]" />
@@ -175,6 +171,7 @@ export function Sidebar() {
           </span>
         </button>
       </div>
+      <LogoutModal isOpen={showLogout} onClose={() => setShowLogout(false)} />
     </aside>
   );
 }
@@ -201,6 +198,7 @@ const moreNavItems = [
 export function BottomNav() {
   const pathname = usePathname();
   const [showMore, setShowMore] = useState(false);
+  const [showLogout, setShowLogout] = useState(false);
 
   return (
     <>
@@ -303,9 +301,39 @@ export function BottomNav() {
               </Link>
             ))}
           </div>
+
+          <div style={{
+            margin: '8px 16px 0',
+            paddingTop: 16,
+            borderTop: '1px solid var(--bg-border)',
+          }}>
+            <button
+              onClick={() => { setShowMore(false); setShowLogout(true); }}
+              style={{
+                width: '100%', height: 48,
+                background: 'rgba(255,69,58,0.08)',
+                border: '1px solid rgba(255,69,58,0.15)',
+                borderRadius: 12,
+                color: 'var(--red)',
+                fontFamily: 'Space Grotesk', fontWeight: 600,
+                fontSize: 15, cursor: 'pointer',
+                display: 'flex', alignItems: 'center',
+                justifyContent: 'center', gap: 8,
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+              Sign Out
+            </button>
+          </div>
         </div>
       </>
     )}
+    <LogoutModal isOpen={showLogout} onClose={() => setShowLogout(false)} />
     </>
   );
 }

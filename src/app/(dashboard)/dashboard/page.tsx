@@ -208,7 +208,12 @@ function DashboardPageInner() {
   const [userName, setUserName] = useState<string>('');
   const [showWelcome, setShowWelcome] = useState(false);
   const [showBetaBanner, setShowBetaBanner] = useState(false);
+  const [showDashboardTransition, setShowDashboardTransition] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     const supabase = createClient();
@@ -244,8 +249,24 @@ function DashboardPageInner() {
   const dismissWelcome = () => {
     localStorage.setItem('vortt_welcome_seen', 'true');
     setShowWelcome(false);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
     const bannerDismissed = localStorage.getItem('vortt_beta_banner_dismissed');
     if (!bannerDismissed) setShowBetaBanner(true);
+  };
+
+  const handleGetStarted = () => {
+    localStorage.setItem('vortt_welcome_seen', 'true');
+    setShowDashboardTransition(true);
+    
+    setTimeout(() => {
+      setShowWelcome(false);
+      setShowDashboardTransition(false);
+      window.scrollTo(0, 0);
+      const bannerDismissed = localStorage.getItem('vortt_beta_banner_dismissed');
+      if (!bannerDismissed) setShowBetaBanner(true);
+    }, 1800);
   };
 
   useEffect(() => {
@@ -333,21 +354,28 @@ function DashboardPageInner() {
     <div className="space-y-6 animate-fade-in">
       {showWelcome && (
         <div style={{
-          position: 'fixed', inset: 0, zIndex: 9998,
+          position: 'fixed', inset: 0, zIndex: 10000,
           background: 'rgba(14,14,16,0.97)',
           backdropFilter: 'blur(8px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: '20px',
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          padding: '16px 16px 32px',
+          overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch',
           animation: 'fadeIn 0.3s ease',
+          isolation: 'isolate',
         }}>
-          <div style={{
+          <div className="welcome-card" style={{
             maxWidth: 520, width: '100%',
             background: 'var(--bg-surface)',
             border: '1px solid rgba(255,107,43,0.2)',
             borderRadius: 24,
-            padding: '40px 36px',
+            padding: '32px 24px',
             position: 'relative',
             boxShadow: '0 0 80px rgba(255,107,43,0.08)',
+            marginTop: 'auto',
+            marginBottom: 'auto',
           }}>
             <button onClick={dismissWelcome} style={{
               position: 'absolute', top: 16, right: 16,
@@ -500,7 +528,7 @@ function DashboardPageInner() {
               }}>Feedback</a>
             </div>
 
-            <button onClick={dismissWelcome} style={{
+            <button onClick={handleGetStarted} style={{
               width:'100%', height:52, marginTop:16,
               background:'var(--orange)', border:'none',
               borderRadius:12, color:'white',
@@ -521,6 +549,54 @@ function DashboardPageInner() {
               Take me to my dashboard →
             </button>
           </div>
+        </div>
+      )}
+
+      {showDashboardTransition && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 10001,
+          background: '#0E0E10',
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          gap: 24,
+          animation: 'fadeIn 0.2s ease',
+        }}>
+          <div style={{position:'relative', width:80, height:80}}>
+            {[0,1,2].map(i => (
+              <div key={i} style={{
+                position: 'absolute', inset: 0,
+                borderRadius: '50%',
+                border: '1px solid rgba(255,107,43,0.4)',
+                animation: `ringExpand 1.5s ease-out infinite`,
+                animationDelay: `${i * 0.4}s`,
+              }}/>
+            ))}
+            <div style={{
+              position: 'absolute', inset: 0,
+              display: 'flex', alignItems: 'center', 
+              justifyContent: 'center',
+            }}>
+              <div style={{
+                width: 32, height: 32, borderRadius: '50%',
+                background: 'var(--orange)',
+                boxShadow: '0 0 24px rgba(255,107,43,0.6)',
+                animation: 'glowPulse 1s ease-in-out infinite',
+                display: 'flex', alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <p style={{
+            fontFamily: 'Space Grotesk', fontWeight: 600,
+            fontSize: 14, color: 'var(--text-muted)',
+            letterSpacing: '0.08em', textTransform: 'uppercase',
+            animation: 'fadeIn 0.5s ease 0.3s both',
+          }}>Setting up your dashboard...</p>
         </div>
       )}
 
