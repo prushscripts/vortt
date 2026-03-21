@@ -35,15 +35,24 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   openGraph: {
     title: 'VORTT — AI Operations for HVAC Contractors',
-    description: 'AI dispatch, job tracking, and contract management built for HVAC contractors.',
+    description: 'AI dispatch, job tracking, and contract management built for HVAC contractors. The smart alternative to ServiceTitan.',
     url: 'https://vortt.app',
     siteName: 'VORTT',
     type: 'website',
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'VORTT — AI Operations for HVAC Contractors',
+      }
+    ],
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'VORTT — AI Operations for HVAC Contractors',
     description: 'AI dispatch, job tracking, and contract management built for HVAC contractors.',
+    images: ['/opengraph-image'],
   },
   appleWebApp: {
     capable: true,

@@ -7,6 +7,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency, formatRelative } from "@/lib/utils/format";
+import { createClient } from "@/lib/supabase/client";
 import type { DashboardMetrics } from "@/types";
 
 const mockMetrics: DashboardMetrics = {
@@ -45,7 +46,7 @@ function StatCard({ label, value, sub, accent }: { label: string; value: string;
   );
 }
 
-function DashboardBody({ m }: { m: DashboardMetrics }) {
+function DashboardBody({ m, userName }: { m: DashboardMetrics; userName: string }) {
   return (
     <>
       {/* Header */}
@@ -54,7 +55,7 @@ function DashboardBody({ m }: { m: DashboardMetrics }) {
           <p className="text-xs font-mono-label text-[rgba(248,248,250,0.38)] uppercase tracking-wider mb-1">
             {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
           </p>
-          <h2 className="font-heading font-bold text-2xl text-[#F8F8FA]">Good morning</h2>
+          <h2 className="font-heading font-bold text-2xl text-[#F8F8FA]">Good morning{userName ? `, ${userName}` : ''}</h2>
         </div>
         <Link href="/dispatch">
           <Button
@@ -126,28 +127,34 @@ function DashboardBody({ m }: { m: DashboardMetrics }) {
             <Link href="/techs" className="text-xs text-[#FF6B2B] hover:underline">View all →</Link>
           </div>
           <div className="space-y-3">
-            {m.techUtilization.map((tech) => {
-              const pct = Math.round((tech.jobsCompleted / tech.jobsToday) * 100);
-              return (
-                <div key={tech.techId} className="flex items-center gap-3">
-                  <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold text-[#FF6B2B]"
-                    style={{ background: "rgba(255,107,43,0.12)" }}
-                  >
-                    {tech.techName.split(" ").map((n) => n[0]).join("")}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="text-sm font-medium text-[#F8F8FA] truncate">{tech.techName}</p>
-                      <span className="text-xs text-[rgba(248,248,250,0.38)] ml-2 flex-shrink-0">{tech.jobsCompleted}/{tech.jobsToday}</span>
+            {m.techUtilization.length === 0 ? (
+              <p className="text-sm text-[rgba(248,248,250,0.38)]">
+                No techs added yet · <Link href="/techs" className="text-[#FF6B2B] hover:underline">Add your first tech</Link>
+              </p>
+            ) : (
+              m.techUtilization.map((tech) => {
+                const pct = Math.round((tech.jobsCompleted / tech.jobsToday) * 100);
+                return (
+                  <div key={tech.techId} className="flex items-center gap-3">
+                    <div
+                      className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold text-[#FF6B2B]"
+                      style={{ background: "rgba(255,107,43,0.12)" }}
+                    >
+                      {tech.techName.split(" ").map((n) => n[0]).join("")}
                     </div>
-                    <div className="h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
-                      <div className="h-1 rounded-full transition-all" style={{ width: `${pct}%`, background: pct === 100 ? "#22C55E" : "#FF6B2B" }} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-sm font-medium text-[#F8F8FA] truncate">{tech.techName}</p>
+                        <span className="text-xs text-[rgba(248,248,250,0.38)] ml-2 flex-shrink-0">{tech.jobsCompleted}/{tech.jobsToday}</span>
+                      </div>
+                      <div className="h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+                        <div className="h-1 rounded-full transition-all" style={{ width: `${pct}%`, background: pct === 100 ? "#22C55E" : "#FF6B2B" }} />
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         </Card>
 
@@ -198,7 +205,19 @@ function DashboardPageInner() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [metricsLoaded, setMetricsLoaded] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
+  const [userName, setUserName] = useState<string>('');
   const router = useRouter();
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user) {
+        const name = data.user.user_metadata?.company_name || 
+                     data.user.email?.split('@')[0] || '';
+        setUserName(name);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -315,7 +334,7 @@ function DashboardPageInner() {
           ))}
         </div>
       ) : (
-        <DashboardBody m={m} />
+        <DashboardBody m={m} userName={userName} />
       )}
       {toastVisible ? (
         <div
@@ -333,7 +352,7 @@ function DashboardPageInner() {
 
 export default function DashboardPage() {
   return (
-    <ErrorBoundary fallback={<div className="space-y-6 animate-fade-in"><DashboardBody m={mockMetrics} /></div>}>
+    <ErrorBoundary fallback={<div className="space-y-6 animate-fade-in"><DashboardBody m={mockMetrics} userName="" /></div>}>
       <DashboardPageInner />
     </ErrorBoundary>
   );

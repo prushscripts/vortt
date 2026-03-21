@@ -272,7 +272,8 @@ export default function NewJobPage() {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="w-full h-32 border-2 border-dashed border-zinc-200 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-vortt-orange hover:bg-orange-50 transition-all"
+              style={{height: 100}}
+              className="w-full border-2 border-dashed border-zinc-200 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-vortt-orange hover:bg-orange-50 transition-all"
             >
               <Camera className="w-8 h-8 text-zinc-300" />
               <span className="text-sm text-zinc-400 font-medium">Take or upload photo</span>
