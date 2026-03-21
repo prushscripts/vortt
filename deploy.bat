@@ -15,7 +15,7 @@ echo ========================================
 echo.
 
 :: ── Check git is initialized ────────────────────────────────
-set COMMIT_MSG=fix: feedback routing from welcome overlay and beta banner
+set COMMIT_MSG=fix: welcome overlay 100dvh iOS fix, scroll lock, transition z-index
 git rev-parse --git-dir >nul 2>&1
 if errorlevel 1 (
     echo  [SETUP] Git not initialized. Setting up now...
