@@ -209,6 +209,7 @@ function DashboardPageInner() {
   const [showWelcome, setShowWelcome] = useState(false);
   const [showBetaBanner, setShowBetaBanner] = useState(false);
   const [showDashboardTransition, setShowDashboardTransition] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -216,20 +217,23 @@ function DashboardPageInner() {
   }, []);
 
   useEffect(() => {
-    if (showWelcome || showDashboardTransition) {
-      document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
-      document.body.style.top = `-${window.scrollY}px`;
-    } else {
-      const scrollY = document.body.style.top;
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.body.style.top = '';
-      window.scrollTo(0, parseInt(scrollY || '0') * -1);
+    setMounted(true);
+    const seen = localStorage.getItem('vortt_welcome_seen');
+    if (!seen) {
+      setShowWelcome(true);
     }
-  }, [showWelcome, showDashboardTransition]);
+  }, []);
+
+  useEffect(() => {
+    if (showWelcome) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [showWelcome]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -252,15 +256,6 @@ function DashboardPageInner() {
     });
   }, []);
 
-  useEffect(() => {
-    const seen = localStorage.getItem('vortt_welcome_seen');
-    if (!seen) {
-      setShowWelcome(true);
-    } else {
-      const bannerDismissed = localStorage.getItem('vortt_beta_banner_dismissed');
-      if (!bannerDismissed) setShowBetaBanner(true);
-    }
-  }, []);
 
   const dismissWelcome = () => {
     localStorage.setItem('vortt_welcome_seen', 'true');
@@ -369,28 +364,23 @@ function DashboardPageInner() {
   return (
     <div className="space-y-6 animate-fade-in">
 {/* Welcome Overlay */}
-      {showWelcome && !showDashboardTransition && (
+      {mounted && showWelcome && !showDashboardTransition && (
         <div style={{
           position: 'fixed',
           top: 0, left: 0,
           width: '100vw',
-          height: '100dvh',
+          height: '100vh',
           zIndex: 10000,
           background: 'rgba(14,14,16,0.96)',
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'flex-start',
-          overflowY: 'auto',
-          overflowX: 'hidden',
+          overflowY: 'scroll',
           WebkitOverflowScrolling: 'touch',
-          paddingTop: 'max(20px, env(safe-area-inset-top))',
-          paddingBottom: 'max(20px, env(safe-area-inset-bottom))',
-          paddingLeft: 16,
-          paddingRight: 16,
+          padding: '20px 16px',
           boxSizing: 'border-box',
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
         }}>
           <div style={{
             width: '100%',
@@ -402,7 +392,8 @@ function DashboardPageInner() {
             borderRadius: 24,
             padding: '28px 22px',
             position: 'relative',
-            boxShadow: '0 0 80px rgba(255,107,43,0.08), 0 24px 64px rgba(0,0,0,0.6)',
+            boxShadow: '0 0 80px rgba(255,107,43,0.08)',
+            flexShrink: 0,
           }}>
             <button onClick={dismissWelcome} style={{
               position: 'absolute', top: 14, right: 14,
@@ -572,7 +563,7 @@ function DashboardPageInner() {
         <div style={{
           position: 'fixed',
           top: 0, left: 0,
-          width: '100vw', height: '100dvh',
+          width: '100vw', height: '100vh',
           zIndex: 10001,
           background: '#0E0E10',
           display: 'flex', flexDirection: 'column',
