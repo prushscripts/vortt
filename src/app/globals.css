@@ -257,6 +257,11 @@ body.overlay-open {
 .welcome-overlay {
   -webkit-overflow-scrolling: touch;
   overflow-y: scroll !important;
+  touch-action: pan-y;
+}
+
+.welcome-overlay * {
+  touch-action: pan-y;
 }
 
 .glow-pulse {

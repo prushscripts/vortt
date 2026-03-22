@@ -365,35 +365,49 @@ function DashboardPageInner() {
     <div className="space-y-6 animate-fade-in">
 {/* Welcome Overlay */}
       {mounted && showWelcome && !showDashboardTransition && (
-        <div className="welcome-overlay" style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 10000,
-          background: 'rgba(14,14,16,0.96)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-          overflowY: 'auto',
-          WebkitOverflowScrolling: 'touch',
-          paddingTop: 20,
-          paddingBottom: 100,
-          paddingLeft: 16,
-          paddingRight: 16,
-          boxSizing: 'border-box' as const,
-        }}>
+        <>
+          {/* Layer 1: Blur background — NOT scrollable, just visual */}
           <div style={{
-            width: '100%',
-            maxWidth: 480,
-            margin: '0 auto',
-            background: 'var(--bg-surface)',
-            border: '1px solid rgba(255,107,43,0.2)',
-            borderRadius: 24,
-            padding: '28px 22px',
-            position: 'relative',
-            boxShadow: '0 0 80px rgba(255,107,43,0.08)',
-          }}>
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            zIndex: 9999,
+            background: 'rgba(14,14,16,0.96)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            pointerEvents: 'none',
+          }}/>
+
+          {/* Layer 2: Scrollable container — NO blur filter */}
+          <div
+            className="welcome-overlay"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) dismissWelcome();
+            }}
+            style={{
+              position: 'fixed',
+              top: 0, left: 0, right: 0, bottom: 0,
+              zIndex: 10000,
+              overflowY: 'scroll',
+              WebkitOverflowScrolling: 'touch',
+              paddingTop: 24,
+              paddingBottom: 120,
+              paddingLeft: 16,
+              paddingRight: 16,
+              boxSizing: 'border-box' as const,
+              background: 'transparent',
+            }}
+          >
+            <div style={{
+              width: '100%',
+              maxWidth: 480,
+              margin: '0 auto',
+              background: '#1C1C1F',
+              border: '1px solid rgba(255,107,43,0.2)',
+              borderRadius: 24,
+              padding: '28px 22px',
+              position: 'relative',
+              boxShadow: '0 0 80px rgba(255,107,43,0.08)',
+            }}>
             <button onClick={dismissWelcome} style={{
               position: 'absolute', top: 14, right: 14,
               width: 30, height: 30, borderRadius: 8,
@@ -553,8 +567,9 @@ function DashboardPageInner() {
             >
               Take me to my dashboard →
             </button>
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* Dashboard transition — SEPARATE from welcome, renders on top */}
