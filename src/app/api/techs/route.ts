@@ -12,3 +12,19 @@ export async function GET(req: NextRequest) {
   });
   return NextResponse.json(techs);
 }
+
+export async function POST(req: NextRequest) {
+  try {
+    const { companyId, name, phone, email, certifications } = await req.json()
+    if (!companyId || !name) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+    const tech = await prisma.tech.create({
+      data: { companyId, name, phone, email, skills: certifications ?? [] }
+    })
+    return NextResponse.json(tech)
+  } catch (e) {
+    console.error(e)
+    return NextResponse.json({ error: 'Failed to create tech' }, { status: 500 })
+  }
+}

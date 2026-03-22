@@ -375,6 +375,7 @@ function DashboardPageInner() {
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
             pointerEvents: 'none',
+            animation: 'fadeIn 0.3s ease',
           }}/>
 
           {/* Layer 2: Scrollable container — NO blur filter */}

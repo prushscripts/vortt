@@ -47,19 +47,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     setLoading(true);
     setProgress(20);
-    const t1 = window.setTimeout(() => setProgress(60), 100);
-    const t2 = window.setTimeout(() => setProgress(90), 200);
-    const t3 = window.setTimeout(() => setProgress(100), 300);
-    const t4 = window.setTimeout(() => {
-      setLoading(false);
-      setProgress(0);
-    }, 500);
-    return () => {
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
-      window.clearTimeout(t3);
-      window.clearTimeout(t4);
-    };
+    const t1 = setTimeout(() => setProgress(40), 80);
+    const t2 = setTimeout(() => setProgress(75), 160);
+    const t3 = setTimeout(() => setProgress(95), 280);
+    const t4 = setTimeout(() => setProgress(100), 380);
+    const t5 = setTimeout(() => { setLoading(false); setProgress(0) }, 480);
+    return () => [t1,t2,t3,t4,t5].forEach(clearTimeout);
   }, [pathname]);
 
   return (
@@ -81,8 +74,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               height: "100%",
               background: "linear-gradient(90deg, var(--orange), #FF8C5A)",
               width: `${progress}%`,
-              transition: "width 0.12s ease",
-              boxShadow: "0 0 12px rgba(255,107,43,0.8), 0 0 4px rgba(255,107,43,1)",
+              transition: 'width 0.08s linear',
+              boxShadow: '0 0 12px rgba(255,107,43,0.8), 0 0 4px rgba(255,107,43,1)',
               borderRadius: "0 2px 2px 0",
             }}
           />

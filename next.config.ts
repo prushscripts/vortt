@@ -3,6 +3,9 @@ import withPWA from "next-pwa";
 
 const nextConfig: NextConfig = {
   turbopack: {},
+  experimental: {
+    scrollRestoration: true,
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "*.supabase.co" },
