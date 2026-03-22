@@ -390,7 +390,7 @@ function DashboardPageInner() {
               overflowY: 'scroll',
               WebkitOverflowScrolling: 'touch',
               paddingTop: 24,
-              paddingBottom: 120,
+              paddingBottom: 200,
               paddingLeft: 16,
               paddingRight: 16,
               boxSizing: 'border-box' as const,

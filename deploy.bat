@@ -15,7 +15,7 @@ echo ========================================
 echo.
 
 :: ── Check git is initialized ────────────────────────────────
-set COMMIT_MSG=fix: welcome overlay iOS scroll — separate backdrop blur from scroll layer
+set COMMIT_MSG=fix: welcome overlay paddingBottom 200 for iPhone bottom nav
 git rev-parse --git-dir >nul 2>&1
 if errorlevel 1 (
     echo  [SETUP] Git not initialized. Setting up now...
