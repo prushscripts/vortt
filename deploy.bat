@@ -15,7 +15,7 @@ echo ========================================
 echo.
 
 :: ── Check git is initialized ────────────────────────────────
-set COMMIT_MSG=feat: scroll restoration, smooth page transitions, refined favicon
+set COMMIT_MSG=fix: welcome overlay desktop centering, mobile scroll, transition fullscreen
 git rev-parse --git-dir >nul 2>&1
 if errorlevel 1 (
     echo  [SETUP] Git not initialized. Setting up now...

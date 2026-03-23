@@ -218,10 +218,11 @@ function DashboardPageInner() {
 
   useEffect(() => {
     setMounted(true);
-    const seen = localStorage.getItem('vortt_welcome_seen');
-    if (!seen) {
-      setShowWelcome(true);
-    }
+    const timer = setTimeout(() => {
+      const seen = localStorage.getItem('vortt_welcome_seen');
+      if (!seen) setShowWelcome(true);
+    }, 150);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -364,9 +365,8 @@ function DashboardPageInner() {
   return (
     <div className="space-y-6 animate-fade-in">
 {/* Welcome Overlay */}
-      {mounted && showWelcome && !showDashboardTransition && (
+      {showWelcome && mounted && !showDashboardTransition && (
         <>
-          {/* Layer 1: Blur background — NOT scrollable, just visual */}
           <div style={{
             position: 'fixed',
             top: 0, left: 0, right: 0, bottom: 0,
@@ -375,39 +375,33 @@ function DashboardPageInner() {
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
             pointerEvents: 'none',
-            animation: 'fadeIn 0.3s ease',
           }}/>
-
-          {/* Layer 2: Scrollable container — NO blur filter */}
           <div
             className="welcome-overlay"
-            onClick={(e) => {
-              if (e.target === e.currentTarget) dismissWelcome();
-            }}
             style={{
               position: 'fixed',
               top: 0, left: 0, right: 0, bottom: 0,
               zIndex: 10000,
-              overflowY: 'scroll',
-              WebkitOverflowScrolling: 'touch',
-              paddingTop: 24,
-              paddingBottom: 200,
-              paddingLeft: 16,
-              paddingRight: 16,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px 16px 100px 16px',
               boxSizing: 'border-box' as const,
-              background: 'transparent',
+              overflowY: 'auto',
+              WebkitOverflowScrolling: 'touch',
+              animation: 'fadeIn 0.25s ease forwards',
             }}
           >
             <div style={{
               width: '100%',
-              maxWidth: 480,
-              margin: '0 auto',
+              maxWidth: 460,
               background: '#1C1C1F',
               border: '1px solid rgba(255,107,43,0.2)',
               borderRadius: 24,
               padding: '28px 22px',
               position: 'relative',
-              boxShadow: '0 0 80px rgba(255,107,43,0.08)',
+              boxShadow: '0 0 80px rgba(255,107,43,0.08), 0 24px 64px rgba(0,0,0,0.6)',
+              flexShrink: 0,
             }}>
             <button onClick={dismissWelcome} style={{
               position: 'absolute', top: 14, right: 14,
@@ -577,35 +571,41 @@ function DashboardPageInner() {
       {showDashboardTransition && (
         <div style={{
           position: 'fixed',
-          top: 0, left: 0,
-          width: '100vw', height: '100vh',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
           zIndex: 10001,
           background: '#0E0E10',
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
           gap: 24,
           animation: 'fadeIn 0.2s ease',
+          margin: 0,
+          padding: 0,
         }}>
-          <div style={{position:'relative', width:80, height:80}}>
+          <div style={{position: 'relative', width: 80, height: 80, flexShrink: 0}}>
             {[0,1,2].map(i => (
               <div key={i} style={{
-                position:'absolute', inset:0,
-                borderRadius:'50%',
-                border:'1px solid rgba(255,107,43,0.4)',
-                animation:'ringExpand 1.5s ease-out infinite',
-                animationDelay:`${i * 0.4}s`,
+                position: 'absolute', inset: 0,
+                borderRadius: '50%',
+                border: '1px solid rgba(255,107,43,0.4)',
+                animation: 'ringExpand 1.5s ease-out infinite',
+                animationDelay: i * 0.4 + 's',
               }}/>
             ))}
             <div style={{
-              position:'absolute', inset:0,
-              display:'flex', alignItems:'center', justifyContent:'center',
+              position: 'absolute', inset: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
               <div style={{
-                width:32, height:32, borderRadius:'50%',
-                background:'var(--orange)',
-                boxShadow:'0 0 24px rgba(255,107,43,0.6)',
-                animation:'glowPulse 1s ease-in-out infinite',
-                display:'flex', alignItems:'center', justifyContent:'center',
+                width: 32, height: 32, borderRadius: '50%',
+                background: 'var(--orange)',
+                boxShadow: '0 0 24px rgba(255,107,43,0.6)',
+                animation: 'glowPulse 1s ease-in-out infinite',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
                   <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
@@ -614,9 +614,13 @@ function DashboardPageInner() {
             </div>
           </div>
           <p style={{
-            fontFamily:'Space Grotesk', fontWeight:600,
-            fontSize:13, color:'var(--text-muted)',
-            letterSpacing:'0.08em', textTransform:'uppercase',
+            fontFamily: 'Space Grotesk',
+            fontWeight: 600,
+            fontSize: 13,
+            color: 'var(--text-muted)',
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            margin: 0,
           }}>Setting up your dashboard...</p>
         </div>
       )}

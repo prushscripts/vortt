@@ -265,8 +265,19 @@ body.overlay-open {
 /* Ensure overlay scrolls on iOS */
 .welcome-overlay {
   -webkit-overflow-scrolling: touch;
-  overflow-y: scroll !important;
   touch-action: pan-y;
+}
+
+@media (min-height: 700px) {
+  .welcome-overlay {
+    overflow: hidden;
+  }
+}
+
+@media (max-height: 699px) {
+  .welcome-overlay {
+    overflow-y: scroll;
+  }
 }
 
 .welcome-overlay * {
