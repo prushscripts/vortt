@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ErrorBoundary } from "react-error-boundary";
@@ -225,16 +226,6 @@ function DashboardPageInner() {
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    if (showWelcome) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [showWelcome]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -365,264 +356,151 @@ function DashboardPageInner() {
   return (
     <div className="space-y-6 animate-fade-in">
 {/* Welcome Overlay */}
-      {showWelcome && mounted && !showDashboardTransition && (
-        <>
-          <div style={{
+      {showWelcome && mounted && createPortal(
+        <div
+          style={{
             position: 'fixed',
-            top: 0, left: 0, right: 0, bottom: 0,
-            zIndex: 9999,
-            background: 'rgba(14,14,16,0.96)',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
-            pointerEvents: 'none',
-          }}/>
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            zIndex: 99999,
+            backgroundColor: 'rgba(14,14,16,0.97)',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            WebkitOverflowScrolling: 'touch',
+            padding: '24px 16px 180px 16px',
+            boxSizing: 'border-box',
+          }}
+        >
           <div
-            className="welcome-overlay"
             style={{
-              position: 'fixed',
-              top: 0, left: 0, right: 0, bottom: 0,
-              zIndex: 10000,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '20px 16px 100px 16px',
-              boxSizing: 'border-box' as const,
-              overflowY: 'auto',
-              WebkitOverflowScrolling: 'touch',
-              animation: 'fadeIn 0.25s ease forwards',
-            }}
-          >
-            <div style={{
               width: '100%',
-              maxWidth: 460,
+              maxWidth: 480,
+              margin: '0 auto',
               background: '#1C1C1F',
               border: '1px solid rgba(255,107,43,0.2)',
               borderRadius: 24,
               padding: '28px 22px',
               position: 'relative',
-              boxShadow: '0 0 80px rgba(255,107,43,0.08), 0 24px 64px rgba(0,0,0,0.6)',
-              flexShrink: 0,
-            }}>
+              boxShadow: '0 0 80px rgba(255,107,43,0.08)',
+            }}
+          >
             <button onClick={dismissWelcome} style={{
               position: 'absolute', top: 14, right: 14,
               width: 30, height: 30, borderRadius: 8,
-              background: 'var(--bg-elevated)',
-              border: '1px solid var(--bg-border)',
-              color: 'var(--text-muted)',
-              fontSize: 16, cursor: 'pointer',
-              display: 'flex', alignItems: 'center',
-              justifyContent: 'center', lineHeight: 1,
-              zIndex: 1,
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              color: '#8E8E93', fontSize: 18,
+              cursor: 'pointer', display: 'flex',
+              alignItems: 'center', justifyContent: 'center',
+              lineHeight: 1, zIndex: 1,
             }}>×</button>
 
             <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20}}>
               <div style={{
-                width:40, height:40, borderRadius:12,
-                background:'var(--orange)',
-                display:'flex', alignItems:'center', justifyContent:'center',
-                boxShadow:'0 0 20px rgba(255,107,43,0.4)', flexShrink:0,
+                width:40,height:40,borderRadius:12,
+                background:'#FF6B2B',
+                display:'flex',alignItems:'center',justifyContent:'center',
+                boxShadow:'0 0 20px rgba(255,107,43,0.4)',flexShrink:0,
               }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
                   <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
                 </svg>
               </div>
-              <span style={{fontFamily:'Space Grotesk',fontWeight:800,
-                            fontSize:20,color:'var(--text-primary)'}}>VORTT</span>
-              <div style={{
-                background:'rgba(255,107,43,0.12)',
-                border:'1px solid rgba(255,107,43,0.3)',
-                borderRadius:6, padding:'3px 8px',
-              }}>
-                <span style={{color:'var(--orange)',fontSize:10,fontWeight:700,
-                              textTransform:'uppercase',letterSpacing:'0.08em'}}>
-                  Early Beta
-                </span>
+              <span style={{fontFamily:'Space Grotesk',fontWeight:800,fontSize:20,color:'#F5F5F7'}}>VORTT</span>
+              <div style={{background:'rgba(255,107,43,0.12)',border:'1px solid rgba(255,107,43,0.3)',borderRadius:6,padding:'3px 8px'}}>
+                <span style={{color:'#FF6B2B',fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.08em'}}>Early Beta</span>
               </div>
             </div>
 
-            <h2 style={{
-              fontFamily:'Space Grotesk', fontWeight:800,
-              fontSize:24, color:'var(--text-primary)',
-              margin:'0 0 10px', lineHeight:1.2,
-              letterSpacing:'-0.02em',
-            }}>Welcome to VORTT</h2>
+            <h2 style={{fontFamily:'Space Grotesk',fontWeight:800,fontSize:24,color:'#F5F5F7',margin:'0 0 10px',lineHeight:1.2,letterSpacing:'-0.02em'}}>
+              Welcome to VORTT
+            </h2>
 
-            <p style={{
-              color:'var(--text-secondary)', fontSize:14,
-              lineHeight:1.6, margin:'0 0 18px',
-            }}>
-              VORTT is an AI operations platform built for small HVAC 
-              contractors. It handles dispatch, job tracking, maintenance 
-              contracts, inventory, and invoicing — all from your phone.
+            <p style={{color:'#8E8E93',fontSize:14,lineHeight:1.6,margin:'0 0 18px'}}>
+              VORTT is an AI operations platform built for small HVAC contractors. It handles dispatch, job tracking, maintenance contracts, inventory, and invoicing — all from your phone.
             </p>
 
-            <div style={{
-              background:'rgba(255,214,10,0.06)',
-              border:'1px solid rgba(255,214,10,0.2)',
-              borderRadius:10, padding:'12px 14px',
-              marginBottom:18,
-              display:'flex', gap:10, alignItems:'flex-start',
-            }}>
-              <div style={{
-                width:18, height:18, borderRadius:'50%',
-                background:'rgba(255,214,10,0.15)',
-                border:'1px solid rgba(255,214,10,0.3)',
-                display:'flex', alignItems:'center', justifyContent:'center',
-                flexShrink:0, marginTop:1,
-              }}>
-                <span style={{fontSize:10,color:'var(--yellow)',fontWeight:700}}>!</span>
+            <div style={{background:'rgba(255,214,10,0.06)',border:'1px solid rgba(255,214,10,0.2)',borderRadius:10,padding:'12px 14px',marginBottom:18,display:'flex',gap:10,alignItems:'flex-start'}}>
+              <div style={{width:18,height:18,borderRadius:'50%',background:'rgba(255,214,10,0.15)',border:'1px solid rgba(255,214,10,0.3)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:1}}>
+                <span style={{fontSize:10,color:'#FFD60A',fontWeight:700}}>!</span>
               </div>
               <div>
-                <p style={{fontFamily:'Space Grotesk',fontWeight:700,
-                           fontSize:12,color:'var(--yellow)',margin:'0 0 3px'}}>
-                  You're using an early beta version
-                </p>
-                <p style={{fontSize:12,color:'var(--text-secondary)',
-                           margin:0,lineHeight:1.5}}>
-                  Some features are still being built. Any names or data 
-                  you see that aren't yours are placeholder examples — 
-                  your real data is separate and private. Please report 
-                  anything that seems off.
-                </p>
+                <p style={{fontFamily:'Space Grotesk',fontWeight:700,fontSize:12,color:'#FFD60A',margin:'0 0 3px'}}>You're using an early beta version</p>
+                <p style={{fontSize:12,color:'#8E8E93',margin:0,lineHeight:1.5}}>Some features are still being built. Any names or data you see that aren't yours are placeholder examples — your real data is separate and private. Please report anything that seems off.</p>
               </div>
             </div>
 
-            <p style={{
-              fontFamily:'Space Grotesk', fontWeight:700,
-              fontSize:11, color:'var(--text-muted)',
-              textTransform:'uppercase', letterSpacing:'0.08em',
-              margin:'0 0 10px',
-            }}>TO GET STARTED</p>
+            <p style={{fontFamily:'Space Grotesk',fontWeight:700,fontSize:11,color:'#48484A',textTransform:'uppercase',letterSpacing:'0.08em',margin:'0 0 10px'}}>TO GET STARTED</p>
 
             {[
               'Add your technicians under the Techs tab',
               'Add your first customer',
               'Create a job and assign it to a tech',
             ].map((step, i) => (
-              <div key={i} style={{
-                display:'flex', gap:12, alignItems:'center',
-                padding:'10px 0',
-                borderBottom: i < 2 ? '1px solid var(--bg-border)' : 'none',
-              }}>
-                <div style={{
-                  width:24, height:24, borderRadius:'50%', flexShrink:0,
-                  background:'rgba(255,107,43,0.12)',
-                  border:'1px solid rgba(255,107,43,0.25)',
-                  display:'flex', alignItems:'center', justifyContent:'center',
-                }}>
-                  <span style={{fontFamily:'Space Grotesk',fontWeight:700,
-                                fontSize:11,color:'var(--orange)'}}>{i+1}</span>
+              <div key={i} style={{display:'flex',gap:12,alignItems:'center',padding:'10px 0',borderBottom:i < 2 ? '1px solid #2A2A2E' : 'none'}}>
+                <div style={{width:24,height:24,borderRadius:'50%',flexShrink:0,background:'rgba(255,107,43,0.12)',border:'1px solid rgba(255,107,43,0.25)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  <span style={{fontFamily:'Space Grotesk',fontWeight:700,fontSize:11,color:'#FF6B2B'}}>{i+1}</span>
                 </div>
-                <span style={{fontSize:13,color:'var(--text-secondary)'}}>
-                  {step}
-                </span>
+                <span style={{fontSize:13,color:'#8E8E93'}}>{step}</span>
               </div>
             ))}
 
-            <div style={{
-              marginTop:18, padding:'12px 14px',
-              background:'var(--bg-elevated)',
-              border:'1px solid var(--bg-border)',
-              borderRadius:10,
-              display:'flex', alignItems:'center',
-              justifyContent:'space-between', gap:12,
-            }}>
+            <div style={{marginTop:18,padding:'12px 14px',background:'#1C1C1F',border:'1px solid #2A2A2E',borderRadius:10,display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
               <div>
-                <p style={{fontFamily:'Space Grotesk',fontWeight:600,
-                           fontSize:12,color:'var(--text-primary)',margin:0}}>
-                  Found something broken?
-                </p>
-                <p style={{fontSize:11,color:'var(--text-muted)',margin:'2px 0 0'}}>
-                  Your feedback shapes what gets built next.
-                </p>
+                <p style={{fontFamily:'Space Grotesk',fontWeight:600,fontSize:12,color:'#F5F5F7',margin:0}}>Found something broken?</p>
+                <p style={{fontSize:11,color:'#48484A',margin:'2px 0 0'}}>Your feedback shapes what gets built next.</p>
               </div>
               <button
                 onClick={() => { dismissWelcome(); router.push('/feedback') }}
-                style={{
-                  background:'var(--orange)', color:'white',
-                  borderRadius:8, padding:'7px 14px',
-                  fontFamily:'Space Grotesk', fontWeight:600,
-                  fontSize:12, border:'none', cursor:'pointer',
-                  flexShrink:0,
-                  boxShadow:'0 4px 12px rgba(255,107,43,0.3)',
-                }}
+                style={{background:'#FF6B2B',color:'white',borderRadius:8,padding:'7px 14px',fontFamily:'Space Grotesk',fontWeight:600,fontSize:12,border:'none',cursor:'pointer',flexShrink:0,boxShadow:'0 4px 12px rgba(255,107,43,0.3)'}}
               >Give Feedback</button>
             </div>
 
             <button
               onClick={handleGetStarted}
-              style={{
-                width:'100%', height:50, marginTop:14,
-                background:'var(--orange)', border:'none',
-                borderRadius:12, color:'white',
-                fontFamily:'Space Grotesk', fontWeight:700,
-                fontSize:15, cursor:'pointer',
-                boxShadow:'0 4px 20px rgba(255,107,43,0.35)',
-              }}
+              style={{width:'100%',height:50,marginTop:14,background:'#FF6B2B',border:'none',borderRadius:12,color:'white',fontFamily:'Space Grotesk',fontWeight:700,fontSize:15,cursor:'pointer',boxShadow:'0 4px 20px rgba(255,107,43,0.35)'}}
             >
               Take me to my dashboard →
             </button>
-            </div>
           </div>
-        </>
+        </div>,
+        document.body
       )}
 
       {/* Dashboard transition — SEPARATE from welcome, renders on top */}
-      {showDashboardTransition && (
+      {showDashboardTransition && mounted && createPortal(
         <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100vw',
-          height: '100vh',
-          zIndex: 10001,
-          background: '#0E0E10',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 24,
-          animation: 'fadeIn 0.2s ease',
-          margin: 0,
-          padding: 0,
+          position:'fixed',top:0,left:0,
+          width:'100vw',height:'100vh',
+          zIndex:100000,
+          background:'#0E0E10',
+          display:'flex',flexDirection:'column',
+          alignItems:'center',justifyContent:'center',
+          gap:24,
         }}>
-          <div style={{position: 'relative', width: 80, height: 80, flexShrink: 0}}>
+          <div style={{position:'relative',width:80,height:80}}>
             {[0,1,2].map(i => (
               <div key={i} style={{
-                position: 'absolute', inset: 0,
-                borderRadius: '50%',
-                border: '1px solid rgba(255,107,43,0.4)',
-                animation: 'ringExpand 1.5s ease-out infinite',
-                animationDelay: i * 0.4 + 's',
+                position:'absolute',inset:0,
+                borderRadius:'50%',
+                border:'1px solid rgba(255,107,43,0.4)',
+                animation:'ringExpand 1.5s ease-out infinite',
+                animationDelay:`${i * 0.4}s`,
               }}/>
             ))}
-            <div style={{
-              position: 'absolute', inset: 0,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <div style={{
-                width: 32, height: 32, borderRadius: '50%',
-                background: 'var(--orange)',
-                boxShadow: '0 0 24px rgba(255,107,43,0.6)',
-                animation: 'glowPulse 1s ease-in-out infinite',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
+            <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center'}}>
+              <div style={{width:32,height:32,borderRadius:'50%',background:'#FF6B2B',boxShadow:'0 0 24px rgba(255,107,43,0.6)',display:'flex',alignItems:'center',justifyContent:'center'}}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
                   <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
                 </svg>
               </div>
             </div>
           </div>
-          <p style={{
-            fontFamily: 'Space Grotesk',
-            fontWeight: 600,
-            fontSize: 13,
-            color: 'var(--text-muted)',
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            margin: 0,
-          }}>Setting up your dashboard...</p>
-        </div>
+          <p style={{fontFamily:'Space Grotesk',fontWeight:600,fontSize:13,color:'#48484A',letterSpacing:'0.08em',textTransform:'uppercase'}}>Setting up your dashboard...</p>
+        </div>,
+        document.body
       )}
 
       {showBetaBanner && (
